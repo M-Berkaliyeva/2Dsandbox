@@ -1,17 +1,27 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+/*******************************************************************
+	Game class holds all game related states and functionality,
+	while separating the windowing code for easier portability and 
+	maintainability.
+	Hosts main game loop: render, update and input processing
+********************************************************************/
 
 class Game
 {
 public:
+	// Represents the current state of the game
 	enum GameState
 	{
 		GAME_ACTIVE,
 		GAME_MENU,
-		GAME_WIN
+		GAME_WIN//probably wont need this for now
+		//TODO: add more states like GAME_PAUSE etc
 	};
 public:
 	// Game state
