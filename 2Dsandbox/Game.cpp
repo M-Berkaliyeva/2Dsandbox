@@ -25,7 +25,8 @@ void Game::Init()
 	// Load textures
 	ResourceManager::LoadTexture("Textures/awesomeface.png", GL_TRUE, ResourceManager::FACE_TEX);
 	// Set render-specific controls
-	Renderer = new SpriteRenderer(ResourceManager::GetShader(ResourceManager::SPRITE_SHADER));
+	Shader shader = ResourceManager::GetShader(ResourceManager::SPRITE_SHADER);
+	Renderer = new SpriteRenderer(shader);
 }
 
 void Game::ProcessInput(GLfloat dt)
@@ -38,5 +39,6 @@ void Game::Update(GLfloat dt)
 
 void Game::Render()
 {
-	Renderer->DrawSprite(ResourceManager::GetTexture(ResourceManager::FACE_TEX), glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	Texture2D tex = ResourceManager::GetTexture(ResourceManager::FACE_TEX);
+	Renderer->DrawSprite(tex, glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 }
