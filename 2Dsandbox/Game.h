@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "SpriteRenderer.h"
+
 /*******************************************************************
 	Game class holds all game related states and functionality,
 	while separating the windowing code for easier portability and 
@@ -37,6 +39,8 @@ public:
 	void ProcessInput(GLfloat dt);
 	void Update(GLfloat dt);
 	void Render();
+private:
+	SpriteRenderer * Renderer;
 };
 
 #endif
