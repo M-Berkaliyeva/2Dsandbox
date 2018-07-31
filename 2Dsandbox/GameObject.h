@@ -8,9 +8,18 @@
 #include "SpriteRenderer.h"
 
 
-// Container object for holding all state relevant for a single
-// game object entity. Each object in the game likely needs the
-// minimal of state as described within GameObject.
+/*****************************************************************
+	Container object for holding all state relevant for a single
+	game object entity. Each object in the game likely needs the
+	minimal of state as described within GameObject.
+	Will be used for:
+	*Player
+	*NPC
+	*Every other non-tile object
+	I don't want to use this for tile since every game object 
+	will have attached sprite and therefore separate render call
+	->for world tiles will use smth called chunck-based rendering
+***************************************************************/
 class GameObject
 {
 public:

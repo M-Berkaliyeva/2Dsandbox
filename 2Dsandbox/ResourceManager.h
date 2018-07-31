@@ -22,15 +22,18 @@ class ResourceManager
 public:
 	static enum TextureName
 	{//TODO: will probably need more than just these
-		FACE_TEX,
+		BACKGROUND_TEX,
+		BLOCK_TEX,
+		BLOCK_SOLID_TEX,
 		GRASS_TEX,
 		DIRT_TEX,
-		STONE_TEX
+		STONE_TEX,
+		TILES_SPRITESHEET
 	};
 	static enum ShaderName
 	{//TODO: definitely needs some good renaming
 		SPRITE_SHADER,
-		SHADER_TWO,
+		WATER_SHADER,//i wish
 		SHADER_THREE
 	};
 	// Resource storage

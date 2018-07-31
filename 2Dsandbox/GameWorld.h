@@ -6,10 +6,21 @@
 #include <GL/glew.h>
 
 #include "SpriteRenderer.h"
+#include "GameObject.h"
+#include "ResourceManager.h"
 
 class GameWorld
 {
 public:
+	const GLfloat m_tileWidth = 16.0f;
+	const GLfloat m_tileHeight = 16.0f;
+
+	GLuint m_worldWidthInTiles = 0;
+	GLuint m_worldHeightInTiles = 0;
+
+	GLfloat m_worldWidthInPixels = 0;
+	GLfloat m_worldHeightInPixels = 0;
+
 	const enum Block
 	{
 		EMPTY_BLOCK = 0,
@@ -18,15 +29,19 @@ public:
 		STONE_BLOCK
 	};
 
-	static const int WorldWidthInTiles = 10;
-	static const int WorldHeightInTiles = 10;
+	GameWorld() {};
 
 	// Loads world data from file
 	void Load(const char* file, GLuint worldWidth, GLuint worldHeight);
+	// Randomly generates world map given dimensions
+	void Generate(GLuint worldWidth, GLuint worldHeight);
 	// Render world
 	void Draw(SpriteRenderer &renderer);
 
 private:
-	std::vector<Block> m_world;
+	// Initialize level from tile data
+	void init(GLuint levelWidth, GLuint levelHeight);
+	
+	std::vector<std::vector<Block>> m_world;	
 };
 #endif

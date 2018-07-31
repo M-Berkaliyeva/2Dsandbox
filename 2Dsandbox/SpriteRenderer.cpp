@@ -31,6 +31,7 @@ void SpriteRenderer::DrawSprite(Texture2D & texture, glm::vec2 position,
 
 	this->shader.SetMatrix4("model", model);
 	this->shader.SetVector3f("spriteColor", color);
+	//this->shader.SetInteger("image", texID);
 
 	glActiveTexture(GL_TEXTURE0);
 	texture.Bind();
@@ -51,7 +52,9 @@ void SpriteRenderer::initRenderData()
 	// TODO: here we have single texture per quad, but what I eventually would want is to have
 	// a tilemap from where i can extract needed texture, so we will have one texture and 
 	// change only texCoords
+	// TODO:read about texture arrays
 	//***********************************************************************************
+	
 	GLfloat vertices[] = {
 		//Pos			//Tex
 		0.0f, 1.0f,		0.0f, 1.0f,
@@ -71,7 +74,7 @@ void SpriteRenderer::initRenderData()
 
 	glBindVertexArray(this->quadVAO);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0); (0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);//
 	
 	// Unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

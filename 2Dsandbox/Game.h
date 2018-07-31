@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 
 #include "SpriteRenderer.h"
+#include "ResourceManager.h"
+#include "GameWorld.h"
 
 /*******************************************************************
 	Game class holds all game related states and functionality,
@@ -41,6 +43,7 @@ public:
 	void Render();
 private:
 	SpriteRenderer * Renderer;
+	GameWorld m_world;
 };
 
 #endif

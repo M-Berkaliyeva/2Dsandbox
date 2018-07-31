@@ -101,6 +101,7 @@ Texture2D ResourceManager::loadTextureFromFile(const GLchar *file, GLboolean alp
 	unsigned char* image = SOIL_load_image(file, &width, &height, 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
 	// Now generate texture
 	texture.Generate(width, height, image);
+	//texture.GenerateTextureArray(width, height, image);
 	// And finally free image data
 	SOIL_free_image_data(image);
 	return texture;

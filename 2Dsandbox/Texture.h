@@ -27,6 +27,8 @@ public:
 	Texture2D();
 	// Generates texture from image data
 	void Generate(GLuint width, GLuint height, unsigned char* data);
+	// Generates texture array from image data
+	void GenerateTextureArray(GLuint width, GLuint height, unsigned char* data);
 	// Binds the texture as the current active GL_TEXTURE_2D texture object
 	void Bind() const;
 };
