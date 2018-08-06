@@ -8,34 +8,48 @@
 
 #include <vector>
 
+#include "Vertex.h"
+
+enum class GlyphSortType
+{
+	NONE,
+	FRONT_TO_BACK,
+	BACK_TO_FRONT,
+	TEXTURE
+};
+
+struct Glyph {
+	GLuint TextureID;
+	float depth;
+
+	Vertex topLeft;
+	Vertex bottomLeft;
+	Vertex topRight;
+	Vertex bottomRight;
+};
 
 class SpriteBatchRenderer
 {
-	struct Glyph {
-		GLuint TextureID;
-		float depth;
-
-		glm::vec2 topLeft;
-		glm::vec2 bottomLeft;
-		glm::vec2 topRight;
-		glm::vec2 bottomRight;
-	};
 
 public:
 	SpriteBatchRenderer();
 	~SpriteBatchRenderer();
 
 	void init();
-	void begin();
+	void begin(GlyphSortType sortType = GlyphSortType::TEXTURE);
 	void end();
 
-	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, GLuint texture, float depth, const glm::vec4 &color);
+	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, GLuint texture, float depth, const Color &color);
 
 	void rednerBatch();
 
 private:
+	void createVertexArray();
+	void sortGlyphs();
+
 	GLuint m_VBO;
 	GLuint m_VAO;
 
-	std::vector<Glyph> m_glyphs;
+	GlyphSortType m_sortType;
+	std::vector<Glyph*> m_glyphs;
 };

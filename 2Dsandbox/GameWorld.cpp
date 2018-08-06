@@ -25,7 +25,7 @@ void GameWorld::Load(const char * file, GLuint worldWidth, GLuint worldHeight)
 		}
 	}	
 	if (m_world.size() > 0)
-		this->init(worldWidth, worldHeight);
+		this->Init(worldWidth, worldHeight);
 }
 
 void GameWorld::Generate(GLuint worldWidth, GLuint worldHeight)
@@ -77,7 +77,7 @@ void GameWorld::Draw(SpriteRenderer &renderer)
 
 }
 
-void GameWorld::init(GLuint worldWidth, GLuint worldHeight)
+void GameWorld::Init(GLuint worldWidth, GLuint worldHeight)
 {
 	m_worldHeightInPixels = worldHeight;
 	m_worldWidthInPixels = worldWidth;

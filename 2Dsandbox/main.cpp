@@ -2,11 +2,16 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <iostream>
+
 #include "Game.h"
 #include "ResourceManager.h"
 
 // GLFW function declerations
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
+// Function to display FPS
+void displayFPS(GLfloat deltaTime);
 
 // The Width of the screen
 const GLuint SCREEN_WIDTH = 800;
@@ -47,16 +52,17 @@ int main(int argc, char *argv[])
 
 	// Start Game within Menu State
 	My2DSandbox.State = Game::GAME_ACTIVE;
-
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculate delta time
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		
+		displayFPS(deltaTime);
+		
 		glfwPollEvents();
 
-		//deltaTime = 0.001f;
 		// Manage user input
 		My2DSandbox.ProcessInput(deltaTime);
 
@@ -69,6 +75,8 @@ int main(int argc, char *argv[])
 		My2DSandbox.Render();
 
 		glfwSwapBuffers(window);
+
+		lastFrame = currentFrame;
 	}
 
 	// Delete all resources as loaded using the resource manager
@@ -76,6 +84,13 @@ int main(int argc, char *argv[])
 
 	glfwTerminate();
 	return 0;
+}
+
+void displayFPS(GLfloat deltaTime)
+{
+	GLfloat frameCount = 1000 / deltaTime;
+	std::cout << "FPS: " << frameCount;
+	std::cout <<"\n";
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)

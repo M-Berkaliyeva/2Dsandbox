@@ -8,6 +8,7 @@
 #include "SpriteRenderer.h"
 #include "ResourceManager.h"
 #include "GameWorld.h"
+#include "Camera2D.h"
 
 /*******************************************************************
 	Game class holds all game related states and functionality,
@@ -44,6 +45,7 @@ public:
 private:
 	SpriteRenderer * Renderer;
 	GameWorld m_world;
+	Camera2D m_camera;
 };
 
 #endif

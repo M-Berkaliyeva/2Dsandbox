@@ -40,7 +40,7 @@ public:
 
 private:
 	// Initialize level from tile data
-	void init(GLuint levelWidth, GLuint levelHeight);
+	void Init(GLuint levelWidth, GLuint levelHeight);
 	
 	std::vector<std::vector<Block>> m_world;	
 };
