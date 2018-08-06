@@ -28,6 +28,11 @@ struct Glyph {
 	Vertex bottomRight;
 };
 
+class RenderBatch
+{
+
+};
+
 class SpriteBatchRenderer
 {
 
@@ -41,11 +46,16 @@ public:
 
 	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, GLuint texture, float depth, const Color &color);
 
-	void rednerBatch();
+	void renderBatch();
 
 private:
 	void createVertexArray();
 	void sortGlyphs();
+
+	//functions to do comparisons for sorting
+	static bool compareFrontToBack(Glyph* a, Glyph* b);
+	static bool compareBackToFront(Glyph* a, Glyph* b);
+	static bool compareTexture(Glyph* a, Glyph* b);
 
 	GLuint m_VBO;
 	GLuint m_VAO;

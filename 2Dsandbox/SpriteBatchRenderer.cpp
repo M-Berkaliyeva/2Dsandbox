@@ -1,5 +1,7 @@
 #include "SpriteBatchRenderer.h"
+
 #include <algorithm>
+#include <cstddef>
 
 SpriteBatchRenderer::SpriteBatchRenderer() :
 	m_VBO(0), m_VAO(0)
@@ -24,7 +26,7 @@ void SpriteBatchRenderer::begin(GlyphSortType sortType)
 
 void SpriteBatchRenderer::end()
 {
-
+	sortGlyphs();
 }
 
 void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, float depth, const Color & color)
@@ -52,7 +54,7 @@ void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvR
 	m_glyphs.push_back(newGlyph);
 }
 
-void SpriteBatchRenderer::rednerBatch()
+void SpriteBatchRenderer::renderBatch()
 {
 
 }
@@ -91,14 +93,29 @@ void SpriteBatchRenderer::sortGlyphs()
 	switch (m_sortType)
 	{
 	case GlyphSortType::BACK_TO_FRONT:
-		//std::stable_sort();
+		std::stable_sort(m_glyphs.begin(), m_glyphs.end(), compareBackToFront);
 		break;
 	case GlyphSortType::FRONT_TO_BACK:
-		//std::stable_sort();
+		std::stable_sort(m_glyphs.begin(), m_glyphs.end(), compareFrontToBack);
 		break;
 	case GlyphSortType::TEXTURE:
-		//std::stable_sort();
+		std::stable_sort(m_glyphs.begin(), m_glyphs.end(), compareTexture);
 		break;
 	}
 	
+}
+
+bool SpriteBatchRenderer::compareFrontToBack(Glyph * a, Glyph * b)
+{
+	return (a->depth < b->depth);//sort by depth
+}
+
+bool SpriteBatchRenderer::compareBackToFront(Glyph * a, Glyph * b)
+{
+	return (a->depth > b->depth);//sort depth
+}
+
+bool SpriteBatchRenderer::compareTexture(Glyph * a, Glyph * b)
+{
+	return (a->TextureID < b->TextureID);//sort by texture ID
 }
