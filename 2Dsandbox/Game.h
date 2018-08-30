@@ -41,11 +41,15 @@ public:
 	// GameLoop
 	void ProcessInput(GLfloat dt);
 	void Update(GLfloat dt);
-	void Render();
+	void Render(GLFWwindow* window);
+
+	void mousePressedAtPos(float x, float y);
 private:
 	SpriteRenderer * Renderer;
 	GameWorld m_world;
 	Camera2D m_camera;
+
+	//SpriteBatchRenderer m_spriteBatch;
 };
 
 #endif

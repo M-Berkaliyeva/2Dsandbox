@@ -19,6 +19,7 @@ public:
 
 	// Getters
 	glm::vec2 getPosition() { return m_position; }
+	glm::vec2 getDimensions() { return glm::vec2(m_screenWidth, m_screenHeight); }
 	float getScale() { return m_scale; }
 	glm::mat4 getCameraMatrix() { return m_cameraMatrix; }
 

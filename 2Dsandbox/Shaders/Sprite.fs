@@ -1,13 +1,13 @@
 #version 330 core
-in vec2 vert;
+
+in vec2 fragmentUV;
+in vec4 fragmentColor;
+
 out vec4 color;
 
 uniform sampler2D image;
-uniform vec3 spriteColor;
-
-vec2 texels;
 
 void main()
 {
-	color = vec4(spriteColor, 1.0) * texture(image, vert);
+	color = fragmentColor * texture(image, fragmentUV);
 }

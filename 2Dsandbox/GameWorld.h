@@ -1,4 +1,4 @@
-#ifndef GAME_WORLDL_H
+#ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
 #include <vector>
@@ -8,6 +8,8 @@
 #include "SpriteRenderer.h"
 #include "GameObject.h"
 #include "ResourceManager.h"
+#include "SpriteBatchRenderer.h"
+#include "Camera2D.h"
 
 class GameWorld
 {
@@ -37,11 +39,21 @@ public:
 	void Generate(GLuint worldWidth, GLuint worldHeight);
 	// Render world
 	void Draw(SpriteRenderer &renderer);
+	// Render world in batches
+	void DrawInBatches(const SpriteRenderer &renderer, Camera2D &cam);
+
+	const ResourceManager::TileName getTileAtPos(GLfloat xPos, GLfloat yPos);
+	void setTileAtPos(GLfloat xPos, GLfloat yPos, ResourceManager::TileName tileName);
 
 private:
 	// Initialize level from tile data
 	void Init(GLuint levelWidth, GLuint levelHeight);
 	
-	std::vector<std::vector<Block>> m_world;	
+	//std::vector<std::vector<Block>> m_world;
+	std::vector<std::vector<ResourceManager::TileName>> m_world;
+	SpriteBatchRenderer m_spriteBatch;
+
+	// Offsets to do coordinate fliping stuff
+	GLuint m_offsetTilesHeight;
 };
 #endif

@@ -1,5 +1,3 @@
-#pragma once
-
 #define GLEW_STATIC
 #include <GL/glew.h>
 
@@ -30,7 +28,12 @@ struct Glyph {
 
 class RenderBatch
 {
-
+public:
+	RenderBatch(GLuint offs, GLuint numV, GLuint tex) 
+		: offset(offs), numVertices(numV), texture(tex)	{}
+	GLuint offset;
+	GLuint numVertices;
+	GLuint texture;
 };
 
 class SpriteBatchRenderer
@@ -47,7 +50,7 @@ public:
 	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, GLuint texture, float depth, const Color &color);
 
 	void renderBatch();
-
+	void createRenderBatches();
 private:
 	void createVertexArray();
 	void sortGlyphs();
@@ -62,4 +65,5 @@ private:
 
 	GlyphSortType m_sortType;
 	std::vector<Glyph*> m_glyphs;
+	std::vector<RenderBatch> m_renderBatches;
 };

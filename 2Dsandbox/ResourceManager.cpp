@@ -7,9 +7,9 @@
 #include <SOIL.h>
 
 // Instantiate static variables
-std::map<ResourceManager::TextureName, Texture2D>    ResourceManager::Textures;
-std::map<ResourceManager::ShaderName, Shader>       ResourceManager::Shaders;
-
+std::map<ResourceManager::SpritesheetName, Texture2D>					ResourceManager::Spritesheets;
+std::map<ResourceManager::TileName, ResourceManager::TexParams>			ResourceManager::TilesLookupTable;
+std::map<ResourceManager::ShaderName, Shader>							ResourceManager::Shaders;
 
 Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, ShaderName name)
 {
@@ -22,15 +22,44 @@ Shader ResourceManager::GetShader(ShaderName name)
 	return Shaders[name];
 }
 
-Texture2D ResourceManager::LoadTexture(const GLchar *file, GLboolean alpha, TextureName name)
+Texture2D ResourceManager::LoadSpritesheet(const GLchar *file, GLboolean alpha, SpritesheetName name)
 {
-	Textures[name] = loadTextureFromFile(file, alpha);
-	return Textures[name];
+	Spritesheets[name] = loadTextureFromFile(file, alpha);
+	return Spritesheets[name];
 }
 
-Texture2D ResourceManager::GetTexture(TextureName name)
+Texture2D ResourceManager::GetSpritesheet(SpritesheetName name)
 {
-	return Textures[name];
+	return Spritesheets[name];
+}
+
+void ResourceManager::LoadSpritesheetParams(const GLchar * file, SpritesheetName name)
+{
+	// Depending on different spritesheets load and store texture params (for player and enemy spritesheets params will also include animation data)
+	switch (name)
+	{
+	case TILES_SPRITESHEET:
+		loadTilesLookupTableFromFile(file);
+		break;
+	}
+	//case PLAYER_SPRITESHEET:
+	//case ENEMIES_SPRITESHEET:
+	//case ITEMS_SPRITESHEET:
+	//.....
+	return;
+}
+
+ResourceManager::TexParams ResourceManager::GetTileParams(SpritesheetName sName, TileName tName)
+{
+	switch (sName)
+	{
+	case TILES_SPRITESHEET:
+		return TilesLookupTable[tName];
+	}
+	//case PLAYER_SPRITESHEET:
+	//case ENEMIES_SPRITESHEET:
+	//case ITEMS_SPRITESHEET:
+	//......
 }
 
 void ResourceManager::Clear()
@@ -39,7 +68,7 @@ void ResourceManager::Clear()
 	for (auto iter : Shaders)
 		glDeleteProgram(iter.second.ID);
 	// (Properly) delete all textures
-	for (auto iter : Textures)
+	for (auto iter : Spritesheets)
 		glDeleteTextures(1, &iter.second.ID);
 }
 
@@ -105,5 +134,43 @@ Texture2D ResourceManager::loadTextureFromFile(const GLchar *file, GLboolean alp
 	// And finally free image data
 	SOIL_free_image_data(image);
 	return texture;
+}
+
+// Reading xml file and storing tile uvs in the map lookup table	
+void ResourceManager::loadTilesLookupTableFromFile(const GLchar * file)
+{
+	TiXmlDocument levelFile(file);
+
+	// Can't load file
+	if (!levelFile.LoadFile())
+	{
+		std::cout << "Loading file \"" << file << "\" failed." << std::endl;
+		return;
+	}
+
+	TiXmlElement *texAtlas;
+	texAtlas = levelFile.FirstChildElement("TextureAtlas");
+
+	float spWidth = atof(texAtlas->Attribute("spWidth"));
+	float spHeight = atof(texAtlas->Attribute("spHeight"));
+
+	TiXmlElement *tileParam;
+	tileParam = texAtlas->FirstChildElement("SubTexture");
+	
+	TexParams currTileParam;	 
+	for (int i = 1; i < TILES_COUNT; i++)//while(tileParam)
+	{
+		// THIS IS TEMP HACKED WAY TO DO IT!!! THINK MORE!!!!
+		currTileParam.u = atof(tileParam->Attribute("x")) / spWidth;//DO NOT USE HARD CODED VALS!!!!!!! THIS IS TEMP to test!
+		currTileParam.v = atof(tileParam->Attribute("y")) / spHeight;//DO NOT USE HARD CODED VALS!!!!!!! THIS IS TEMP to test!
+		currTileParam.width = atof(tileParam->Attribute("width")) / spWidth;// TEMP TO MAKE IT NORMALIZED
+		currTileParam.height = atof(tileParam->Attribute("height")) / spWidth;// TEMP TO MAKE IT NORMALIZED
+
+		TilesLookupTable[(TileName)i] = currTileParam;//right now just stores different params for same name!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+
+		// Now move on and read next subtexture 
+		tileParam = tileParam->NextSiblingElement("SubTexture");
+	}
+	return;
 }
 

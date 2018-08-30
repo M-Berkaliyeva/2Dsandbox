@@ -9,6 +9,7 @@
 
 // GLFW function declerations
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void cursor_position_callback(GLFWwindow* window, int button, int action, int mods);
 
 // Function to display FPS
 void displayFPS(GLfloat deltaTime);
@@ -16,7 +17,7 @@ void displayFPS(GLfloat deltaTime);
 // The Width of the screen
 const GLuint SCREEN_WIDTH = 800;
 // The height of the screen
-const GLuint SCREEN_HEIGHT = 800;
+const GLuint SCREEN_HEIGHT = 600;
 
 Game My2DSandbox(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -36,6 +37,7 @@ int main(int argc, char *argv[])
 	glGetError(); // Call it once to catch glewInit() bug, all other errors are now from our application.
 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, cursor_position_callback);
 
 	// OpenGL configuration
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -59,7 +61,7 @@ int main(int argc, char *argv[])
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		
-		displayFPS(deltaTime);
+		//displayFPS(deltaTime);
 		
 		glfwPollEvents();
 
@@ -69,12 +71,10 @@ int main(int argc, char *argv[])
 		// Update Game state
 		My2DSandbox.Update(deltaTime);
 
-		// Render
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		My2DSandbox.Render();
+		// Render		
+		My2DSandbox.Render(window);
 
-		glfwSwapBuffers(window);
+		//glfwSwapBuffers(window);
 
 		lastFrame = currentFrame;
 	}
@@ -104,6 +104,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			My2DSandbox.Keys[key] = GL_TRUE;
 		else if (action == GLFW_RELEASE)
 			My2DSandbox.Keys[key] = GL_FALSE;
+	}
+}
+
+void cursor_position_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		double xpos, ypos;
+		//getting cursor position
+		glfwGetCursorPos(window, &xpos, &ypos);
+		std::cout << "Cursor Position at (" << xpos << " : " << ypos << std::endl;
+
+		My2DSandbox.mousePressedAtPos(xpos, SCREEN_HEIGHT - ypos);// Flip pos Y of mouse press because of opengl bottom-left coord system
 	}
 }
 

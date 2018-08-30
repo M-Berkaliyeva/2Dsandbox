@@ -22,7 +22,7 @@ void Camera2D::Init(GLuint screenWidth, GLuint screenHeight)
 {
 	m_screenWidth = screenWidth;
 	m_screenHeight = screenHeight;
-	m_cameraMatrix = glm::ortho(0.0f, (float)m_screenWidth, (float)m_screenHeight, 0.0f, -1.0f, 1.0f);
+	m_cameraMatrix = glm::ortho(0.0f, (float)m_screenWidth, 0.0f, (float)m_screenHeight, -1.0f, 1.0f);
 }
 
 void Camera2D::Update()

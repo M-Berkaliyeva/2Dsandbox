@@ -8,6 +8,7 @@
 
 #include "texture.h"
 #include "shader.h"
+#include "tinyxml.h"
 
 
 /************************SINGLETON****************************** 
@@ -20,33 +21,53 @@
 class ResourceManager
 {
 public:
-	static enum TextureName
-	{//TODO: will probably need more than just these
-		BACKGROUND_TEX,
-		BLOCK_TEX,
-		BLOCK_SOLID_TEX,
-		GRASS_TEX,
-		DIRT_TEX,
-		STONE_TEX,
-		TILES_SPRITESHEET
+	static enum SpritesheetName
+	{
+		TILES_SPRITESHEET,
+		PLAYER_SPRITESHEET,
+		ITEMS_SPRITESHEET
 	};
+
+	static enum TileName
+	{//TODO: will probably need more than just these
+		EMPTY_TILE,
+		GRASS_TILE,
+		DIRT_TILE,
+		STONE_TILE,
+		BLOCK_TILE,
+		BOX_TILE,
+
+		TILES_COUNT
+	};
+
 	static enum ShaderName
-	{//TODO: definitely needs some good renaming
+	{
 		SPRITE_SHADER,
-		WATER_SHADER,//i wish
-		SHADER_THREE
+		WATER_SHADER//i wish lol
+	};
+	static struct TexParams
+	{
+		GLfloat u;
+		GLfloat v;
+		GLfloat width;
+		GLfloat height;
 	};
 	// Resource storage
 	static std::map<ShaderName, Shader>    Shaders;
-	static std::map<TextureName, Texture2D> Textures;
+	static std::map<SpritesheetName, Texture2D> Spritesheets;
+	static std::map<TileName, TexParams> TilesLookupTable;
 	// Loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
 	static Shader   LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, ShaderName name);
 	// Retrieves a stored shader
 	static Shader   GetShader(ShaderName name);
 	// Loads (and generates) a texture from file
-	static Texture2D LoadTexture(const GLchar *file, GLboolean alpha, TextureName name);
+	static Texture2D LoadSpritesheet(const GLchar *file, GLboolean alpha, SpritesheetName name);
 	// Retrieves a stored texture
-	static Texture2D GetTexture(TextureName name);
+	static Texture2D GetSpritesheet(SpritesheetName name);
+	// Loads a spritesheet params (texture name, x, y, width and height) from file
+	static void LoadSpritesheetParams(const GLchar *file, SpritesheetName name);
+	// Retrieves parameters of texture in spritesheet
+	static TexParams GetTileParams(SpritesheetName sName, TileName tName);
 	// Properly de-allocates all loaded resources
 	static void      Clear();
 private:
@@ -56,6 +77,8 @@ private:
 	static Shader    loadShaderFromFile(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile = nullptr);
 	// Loads a single texture from file
 	static Texture2D loadTextureFromFile(const GLchar *file, GLboolean alpha);
+	// Loads a texture coodinate data
+	static void loadTilesLookupTableFromFile(const GLchar *file);
 };
 
 #endif

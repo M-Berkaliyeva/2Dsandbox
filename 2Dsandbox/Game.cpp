@@ -18,21 +18,14 @@ void Game::Init()
 	// Load shaders
 	ResourceManager::LoadShader("Shaders/Sprite.vs", "Shaders/Sprite.fs", nullptr, ResourceManager::SPRITE_SHADER);
 	// Configure shaders
-	// TODO: here I also want to create camera matrix
-	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(this->Width), static_cast<GLfloat>(this->Height), 0.0f, -1.0f, 1.0f);
 	ResourceManager::GetShader(ResourceManager::SPRITE_SHADER).Use().SetInteger("image", 0);
 	ResourceManager::GetShader(ResourceManager::SPRITE_SHADER).Use().SetMatrix4("projection", m_camera.getCameraMatrix());
-	// Load textures
-	ResourceManager::LoadTexture("textures/background.jpg", GL_FALSE, ResourceManager::BACKGROUND_TEX);
-	ResourceManager::LoadTexture("textures/block.png", GL_FALSE, ResourceManager::BLOCK_TEX);
-	ResourceManager::LoadTexture("textures/block_solid.png", GL_FALSE, ResourceManager::BLOCK_SOLID_TEX);
-	ResourceManager::LoadTexture("textures/dirt.png", GL_FALSE, ResourceManager::DIRT_TEX);
-	ResourceManager::LoadTexture("textures/grass.jpg", GL_FALSE, ResourceManager::GRASS_TEX);
-	ResourceManager::LoadTexture("textures/grass.jpg", GL_FALSE, ResourceManager::STONE_TEX);
-	// Load spritesheet 
-	ResourceManager::LoadTexture("textures/Tiles/tiles_spritesheet.png", GL_FALSE, ResourceManager::TILES_SPRITESHEET);
+	// Load spritesheet and spritesheet params (uv rects)
+	ResourceManager::LoadSpritesheet("textures/Tiles/tiles_spritesheet.png", GL_FALSE, ResourceManager::TILES_SPRITESHEET);
+	ResourceManager::LoadSpritesheetParams("textures/Tiles/tiles_spritesheet.xml", ResourceManager::TILES_SPRITESHEET);
 	// Load world
-	m_world.Load("WorldMaps/World1.map", this->Width, this->Height);
+	//m_world.Load("WorldMaps/World1.map", this->Width, this->Height);
+	m_world.Generate(3000, 1500);
 
 	// Set render-specific controls
 	Shader shader = ResourceManager::GetShader(ResourceManager::SPRITE_SHADER);
@@ -84,14 +77,36 @@ void Game::Update(GLfloat dt)
 	m_camera.Update();
 }
 
-void Game::Render()
+void Game::Render(GLFWwindow* window)
 {
 	if (this->State == GAME_ACTIVE)
-	{		
-		// Draw background
-		Texture2D bgTex = ResourceManager::GetTexture(ResourceManager::BACKGROUND_TEX);
-		//Renderer->DrawSprite(bgTex,	glm::vec2(0, 0), glm::vec2(this->Width, this->Height), 0.0f);
-		// Draw level
-		m_world.Draw(*Renderer);
+	{	
+		//Set Base depth to 1
+		glClearDepth(1.0f);
+		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		glActiveTexture(GL_TEXTURE0);
+
+		//ResourceManager::GetShader(ResourceManager::SPRITE_SHADER).Use();
+		glm::mat4 model = glm::mat4(1.0);
+		ResourceManager::GetShader(ResourceManager::SPRITE_SHADER).SetMatrix4("model", model);
+		ResourceManager::GetShader(ResourceManager::SPRITE_SHADER).SetMatrix4("projection", m_camera.getCameraMatrix());
+		ResourceManager::GetShader(ResourceManager::SPRITE_SHADER).SetInteger("image", 0);
+		
+		// Draw world tiles
+		m_world.DrawInBatches(*Renderer, m_camera);
+
+		//unbind texture
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindVertexArray(0);
+		/**************/
+		glfwSwapBuffers(window);
 	}
+}
+
+void Game::mousePressedAtPos(float x, float y)
+{
+	m_world.setTileAtPos(x + m_camera.getPosition().x, y + m_camera.getPosition().y, ResourceManager::EMPTY_TILE);
 }

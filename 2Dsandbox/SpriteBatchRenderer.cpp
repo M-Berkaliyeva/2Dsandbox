@@ -22,11 +22,14 @@ void SpriteBatchRenderer::init()
 void SpriteBatchRenderer::begin(GlyphSortType sortType)
 {
 	m_sortType = sortType;
+	m_renderBatches.clear();
+	m_glyphs.clear();
 }
 
 void SpriteBatchRenderer::end()
 {
 	sortGlyphs();
+	createRenderBatches();
 }
 
 void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, float depth, const Color & color)
@@ -36,27 +39,85 @@ void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvR
 	newGlyph->depth = depth;
 
 	newGlyph->topLeft.color = color;
-	newGlyph->topLeft.setPosition(destRect.x, destRect.y);
-	newGlyph->topLeft.setUV(uvRect.x, uvRect.y);
+	newGlyph->topLeft.setPosition(destRect.x, destRect.y + destRect.w);
+	newGlyph->topLeft.setUV(uvRect.x, uvRect.y + uvRect.w);
 
 	newGlyph->bottomLeft.color = color;
-	newGlyph->bottomLeft.setPosition(destRect.x, destRect.y + destRect.w);
-	newGlyph->bottomLeft.setUV(uvRect.x, uvRect.y + uvRect.w);
+	newGlyph->bottomLeft.setPosition(destRect.x, destRect.y);
+	newGlyph->bottomLeft.setUV(uvRect.x, uvRect.y);
 
 	newGlyph->topRight.color = color;
-	newGlyph->topRight.setPosition(destRect.x + destRect.z, destRect.y);
-	newGlyph->topRight.setUV(uvRect.x + uvRect.z, uvRect.y);
+	newGlyph->topRight.setPosition(destRect.x + destRect.z, destRect.y + destRect.w);
+	newGlyph->topRight.setUV(uvRect.x + uvRect.z, uvRect.y + uvRect.w);
 
 	newGlyph->bottomRight.color = color;
-	newGlyph->bottomRight.setPosition(destRect.x + destRect.z, destRect.y + destRect.w);
-	newGlyph->bottomRight.setUV(uvRect.x + uvRect.z, uvRect.y + uvRect.w);
+	newGlyph->bottomRight.setPosition(destRect.x + destRect.z, destRect.y);
+	newGlyph->bottomRight.setUV(uvRect.x + uvRect.z, uvRect.y);
 
 	m_glyphs.push_back(newGlyph);
 }
 
 void SpriteBatchRenderer::renderBatch()
 {
+	glBindVertexArray(m_VAO);
+	for (int i = 0; i < m_renderBatches.size(); i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, m_renderBatches[i].texture);
 
+		glDrawArrays(GL_TRIANGLES, m_renderBatches[i].offset, m_renderBatches[i].numVertices);
+	}
+	glBindVertexArray(0);
+}
+
+void SpriteBatchRenderer::createRenderBatches()
+{
+	std::vector<Vertex> vertices;
+	vertices.resize(m_glyphs.size() * 6);//allocate memory since we know size
+
+	if (m_glyphs.empty())
+	{
+		return;
+	}
+	int offset = 0;
+	int currVertex = 0;
+	m_renderBatches.emplace_back(offset, 6, m_glyphs[0]->TextureID);
+	vertices[currVertex++] = m_glyphs[0]->topLeft;
+	vertices[currVertex++] = m_glyphs[0]->bottomLeft;
+	vertices[currVertex++] = m_glyphs[0]->bottomRight;
+	vertices[currVertex++] = m_glyphs[0]->bottomRight;
+	vertices[currVertex++] = m_glyphs[0]->topRight;
+	vertices[currVertex++] = m_glyphs[0]->topLeft;
+	offset += 6;
+
+
+	for (int currGlyph = 1; currGlyph < m_glyphs.size(); currGlyph++)
+	{
+		//only emplace render batch if curent texture is not the same as previous
+		if(m_glyphs[currGlyph]->TextureID != m_glyphs[currGlyph - 1]->TextureID)
+		{
+			m_renderBatches.emplace_back(offset, 6, m_glyphs[currGlyph]->TextureID);
+		}
+		else//otherwise increase the size of current renderbatch
+		{
+			m_renderBatches.back().numVertices += 6;
+		}
+		
+		vertices[currVertex++] = m_glyphs[currGlyph]->topLeft;
+		vertices[currVertex++] = m_glyphs[currGlyph]->bottomLeft;
+		vertices[currVertex++] = m_glyphs[currGlyph]->bottomRight;
+		vertices[currVertex++] = m_glyphs[currGlyph]->bottomRight;
+		vertices[currVertex++] = m_glyphs[currGlyph]->topRight;
+		vertices[currVertex++] = m_glyphs[currGlyph]->topLeft;
+		offset += 6;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	//orphan the buffer
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW );
+	//upload the data
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
+	//unbind buffer
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void SpriteBatchRenderer::createVertexArray()

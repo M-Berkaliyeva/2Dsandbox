@@ -1,13 +1,17 @@
 #version 330 core
-layout (location = 0) in vec4 vertex;//<vec2 pos, vec2 texCoords>
+layout (location = 0) in vec2 vertexPosition;//<vec2 pos, vec2 texCoords>
+layout (location = 1) in vec4 vertexColor;
+layout (location = 2) in vec2 vertexUV;
 
-out vec2 vert;
+out vec2 fragmentUV;
+out vec4 fragmentColor;
 
 uniform mat4 model;
 uniform mat4 projection;
 
 void main()
 {	
-	vert = vertex.xy;
-	gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);
+	fragmentUV = vertexUV;
+	fragmentColor = vertexColor;
+	gl_Position = projection * model * vec4(vertexPosition, 0.0, 1.0);
 }
