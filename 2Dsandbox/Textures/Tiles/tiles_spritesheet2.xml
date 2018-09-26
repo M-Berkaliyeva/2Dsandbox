@@ -1,0 +1,8 @@
+<TextureAtlas imagePath="sheet.png" spWidth="914" spHeight="936">	
+	<SubTexture name="grassMid.png" x="504" y="576" width="70" height="70"/>
+	<SubTexture name="grassCenter.png" x="576" y="864" width="70" height="70"/>
+	<SubTexture name="sandCenter.png" x="576" y="864" width="70" height="70"/>
+	<SubTexture name="snowCenter.png" x="720" y="864" width="70" height="70"/>
+	<SubTexture name="castleCenter.png" x="504" y="288" width="70" height="70"/>
+	<SubTexture name="liquidWater.png" x="504" y="216" width="70" height="70"/>
+</TextureAtlas>

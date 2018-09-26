@@ -5,7 +5,8 @@
 #include <glm/glm.hpp>
 
 #include "texture.h"
-#include "SpriteRenderer.h"
+//#include "SpriteRenderer.h"
+#include "SpriteBatchRenderer.h"
 
 
 /*****************************************************************
@@ -22,20 +23,41 @@
 ***************************************************************/
 class GameObject
 {
+	static const float GRAVITY;
 public:
-	// Object state
-	glm::vec2   Position, Size, Velocity;
-	glm::vec3   Color;
-	GLfloat     Rotation;
-	GLboolean   IsSolid;
-	GLboolean   Destroyed;
-	// Render state
-	Texture2D   Sprite;
-	// Constructor(s)
+	enum ObjectType
+	{
+		OBJECT_TYPE_GENERIC = 0,
+		OBJECT_TYPE_PLAYER,
+		OBJECT_TYPE_TILE_PICKUP,
+
+		OBJECT_TYPE_COUNT
+	};
 	GameObject();
-	GameObject(glm::vec2 pos, glm::vec2 size, Texture2D sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec2 velocity = glm::vec2(0.0f, 0.0f));
-	// Draw sprite
-	virtual void Draw(SpriteRenderer &renderer);
+	GameObject(ObjectType objType,  glm::vec2 pos, glm::vec2 size, Texture2D sprite, GLboolean isCollidable = GL_TRUE, GLboolean isGravityApplied = GL_TRUE);
+
+	virtual void Update();
+	virtual void Draw(SpriteBatchRenderer &renderer);
+	virtual void OnCollision(GameObject* otherObject);
+
+	void Move(glm::vec2 speed);
+	bool Collides(glm::vec4 otherCollisionRect);
+
+private:
+	ObjectType	m_objectType;
+	
+	// Object position and size
+	glm::vec2   m_position, m_size;
+	glm::vec2	m_speed, m_acceleration;
+
+	// Object collision rectangle
+	glm::vec4	m_collisionRect;
+
+	GLboolean	m_isGravityApplied;
+	GLboolean	m_isDrawable;
+	GLboolean   m_isCollidable;
+	// Render state
+	Texture2D   m_sprite;// maybe should be spritesheet?
 };
 
 #endif

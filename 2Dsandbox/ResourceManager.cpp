@@ -49,7 +49,7 @@ void ResourceManager::LoadSpritesheetParams(const GLchar * file, SpritesheetName
 	return;
 }
 
-ResourceManager::TexParams ResourceManager::GetTileParams(SpritesheetName sName, TileName tName)
+ResourceManager::TexParams ResourceManager::GetTexParams(SpritesheetName sName, TileName tName)
 {
 	switch (sName)
 	{

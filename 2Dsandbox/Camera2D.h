@@ -13,23 +13,29 @@ public:
 	void Init(GLuint screenWidth, GLuint screenHeight);
 	void Update();
 
+	void move(glm::vec2 dir);
+	void zoom(GLfloat new_scale);
+	
 	// Setters
-	void setPosition(const glm::vec2& newPosition) { m_position = newPosition; m_needsMatrixUpdate = true; }
-	void setScale(GLfloat newScale) { m_scale = newScale; m_needsMatrixUpdate = true; }
+	void setCameraLimits(GLfloat limX, GLfloat limY) { m_camPosLimit = glm::vec2(limX - m_screenWidth, limY - m_screenHeight); }
 
 	// Getters
-	glm::vec2 getPosition() { return m_position; }
+	glm::vec2 getPosition() { return glm::vec2(m_cameraPos.x, m_cameraPos.y); }
 	glm::vec2 getDimensions() { return glm::vec2(m_screenWidth, m_screenHeight); }
 	float getScale() { return m_scale; }
 	glm::mat4 getCameraMatrix() { return m_cameraMatrix; }
+	glm::mat4 getViewMatrix() { return m_viewMatrix; }
 
 private:
 	GLuint m_screenWidth, m_screenHeight;
 	bool m_needsMatrixUpdate;
 	GLfloat m_scale;
-	glm::vec2 m_position;
+	GLfloat m_speed;
+	glm::vec2 m_camPosLimit;
+	glm::vec3 m_cameraPos;
+	glm::vec3 m_cameraFront;
+	glm::vec3 m_cameraUp;
 	glm::mat4 m_cameraMatrix;
+	glm::mat4 m_viewMatrix;
 	glm::mat4 m_orthoMatrix;
-
 };
-

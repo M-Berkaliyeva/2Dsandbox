@@ -33,16 +33,17 @@ public:
 		EMPTY_TILE,
 		GRASS_TILE,
 		DIRT_TILE,
+		SAND_TILE,
+		SNOW_TILE,
 		STONE_TILE,
-		BLOCK_TILE,
-		BOX_TILE,
 
 		TILES_COUNT
 	};
 
 	static enum ShaderName
 	{
-		SPRITE_SHADER,
+		TILE_SHADER,
+		GAMEOBJECT_SHADER,
 		WATER_SHADER//i wish lol
 	};
 	static struct TexParams
@@ -67,7 +68,7 @@ public:
 	// Loads a spritesheet params (texture name, x, y, width and height) from file
 	static void LoadSpritesheetParams(const GLchar *file, SpritesheetName name);
 	// Retrieves parameters of texture in spritesheet
-	static TexParams GetTileParams(SpritesheetName sName, TileName tName);
+	static TexParams GetTexParams(SpritesheetName sName, TileName tName);
 	// Properly de-allocates all loaded resources
 	static void      Clear();
 private:

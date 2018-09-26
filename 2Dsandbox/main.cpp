@@ -15,9 +15,9 @@ void cursor_position_callback(GLFWwindow* window, int button, int action, int mo
 void displayFPS(GLfloat deltaTime);
 
 // The Width of the screen
-const GLuint SCREEN_WIDTH = 800;
+const GLuint SCREEN_WIDTH = 1600;
 // The height of the screen
-const GLuint SCREEN_HEIGHT = 600;
+const GLuint SCREEN_HEIGHT = 1200;
 
 Game My2DSandbox(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
 	// OpenGL configuration
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -100,7 +102,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	if (key >= 0 && key < 1024)
 	{
-		if (action == GLFW_PRESS)
+		if (action == GLFW_PRESS && !My2DSandbox.Keys[key])
 			My2DSandbox.Keys[key] = GL_TRUE;
 		else if (action == GLFW_RELEASE)
 			My2DSandbox.Keys[key] = GL_FALSE;
@@ -109,14 +111,24 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void cursor_position_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	if ( action == GLFW_PRESS)
 	{
 		double xpos, ypos;
 		//getting cursor position
 		glfwGetCursorPos(window, &xpos, &ypos);
 		std::cout << "Cursor Position at (" << xpos << " : " << ypos << std::endl;
+		if (button == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			My2DSandbox.mousePressedLeftAtPos(xpos, ypos);
+		}
+		else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+		{
+			My2DSandbox.mousePressedRightAtPos(xpos, ypos);
+		}
+		
 
-		My2DSandbox.mousePressedAtPos(xpos, SCREEN_HEIGHT - ypos);// Flip pos Y of mouse press because of opengl bottom-left coord system
+		
 	}
+	
 }
 

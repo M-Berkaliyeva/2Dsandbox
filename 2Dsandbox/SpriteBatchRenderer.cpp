@@ -28,33 +28,19 @@ void SpriteBatchRenderer::begin(GlyphSortType sortType)
 
 void SpriteBatchRenderer::end()
 {
+	// Set up all pointers for fast sorting
+	m_glyphPointers.resize(m_glyphs.size());
+	for (int i = 0; i < m_glyphPointers.size(); i++)
+	{
+		m_glyphPointers[i] = &m_glyphs[i];
+	}
 	sortGlyphs();
 	createRenderBatches();
 }
 
 void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, float depth, const Color & color)
 {
-	Glyph* newGlyph = new Glyph;
-	newGlyph->TextureID = texture;
-	newGlyph->depth = depth;
-
-	newGlyph->topLeft.color = color;
-	newGlyph->topLeft.setPosition(destRect.x, destRect.y + destRect.w);
-	newGlyph->topLeft.setUV(uvRect.x, uvRect.y + uvRect.w);
-
-	newGlyph->bottomLeft.color = color;
-	newGlyph->bottomLeft.setPosition(destRect.x, destRect.y);
-	newGlyph->bottomLeft.setUV(uvRect.x, uvRect.y);
-
-	newGlyph->topRight.color = color;
-	newGlyph->topRight.setPosition(destRect.x + destRect.z, destRect.y + destRect.w);
-	newGlyph->topRight.setUV(uvRect.x + uvRect.z, uvRect.y + uvRect.w);
-
-	newGlyph->bottomRight.color = color;
-	newGlyph->bottomRight.setPosition(destRect.x + destRect.z, destRect.y);
-	newGlyph->bottomRight.setUV(uvRect.x + uvRect.z, uvRect.y);
-
-	m_glyphs.push_back(newGlyph);
+	m_glyphs.emplace_back(destRect, uvRect, texture, depth, color);
 }
 
 void SpriteBatchRenderer::renderBatch()
@@ -80,34 +66,34 @@ void SpriteBatchRenderer::createRenderBatches()
 	}
 	int offset = 0;
 	int currVertex = 0;
-	m_renderBatches.emplace_back(offset, 6, m_glyphs[0]->TextureID);
-	vertices[currVertex++] = m_glyphs[0]->topLeft;
-	vertices[currVertex++] = m_glyphs[0]->bottomLeft;
-	vertices[currVertex++] = m_glyphs[0]->bottomRight;
-	vertices[currVertex++] = m_glyphs[0]->bottomRight;
-	vertices[currVertex++] = m_glyphs[0]->topRight;
-	vertices[currVertex++] = m_glyphs[0]->topLeft;
+	m_renderBatches.emplace_back(offset, 6, m_glyphPointers[0]->textureID);
+	vertices[currVertex++] = m_glyphPointers[0]->topLeft;
+	vertices[currVertex++] = m_glyphPointers[0]->bottomLeft;
+	vertices[currVertex++] = m_glyphPointers[0]->bottomRight;
+	vertices[currVertex++] = m_glyphPointers[0]->bottomRight;
+	vertices[currVertex++] = m_glyphPointers[0]->topRight;
+	vertices[currVertex++] = m_glyphPointers[0]->topLeft;
 	offset += 6;
 
 
-	for (int currGlyph = 1; currGlyph < m_glyphs.size(); currGlyph++)
+	for (int currGlyph = 1; currGlyph < m_glyphPointers.size(); currGlyph++)
 	{
 		//only emplace render batch if curent texture is not the same as previous
-		if(m_glyphs[currGlyph]->TextureID != m_glyphs[currGlyph - 1]->TextureID)
+		if(m_glyphPointers[currGlyph]->textureID != m_glyphPointers[currGlyph - 1]->textureID)
 		{
-			m_renderBatches.emplace_back(offset, 6, m_glyphs[currGlyph]->TextureID);
+			m_renderBatches.emplace_back(offset, 6, m_glyphPointers[currGlyph]->textureID);
 		}
 		else//otherwise increase the size of current renderbatch
 		{
 			m_renderBatches.back().numVertices += 6;
 		}
 		
-		vertices[currVertex++] = m_glyphs[currGlyph]->topLeft;
-		vertices[currVertex++] = m_glyphs[currGlyph]->bottomLeft;
-		vertices[currVertex++] = m_glyphs[currGlyph]->bottomRight;
-		vertices[currVertex++] = m_glyphs[currGlyph]->bottomRight;
-		vertices[currVertex++] = m_glyphs[currGlyph]->topRight;
-		vertices[currVertex++] = m_glyphs[currGlyph]->topLeft;
+		vertices[currVertex++] = m_glyphPointers[currGlyph]->topLeft;
+		vertices[currVertex++] = m_glyphPointers[currGlyph]->bottomLeft;
+		vertices[currVertex++] = m_glyphPointers[currGlyph]->bottomRight;
+		vertices[currVertex++] = m_glyphPointers[currGlyph]->bottomRight;
+		vertices[currVertex++] = m_glyphPointers[currGlyph]->topRight;
+		vertices[currVertex++] = m_glyphPointers[currGlyph]->topLeft;
 		offset += 6;
 	}
 
@@ -139,11 +125,11 @@ void SpriteBatchRenderer::createVertexArray()
 	glEnableVertexAttribArray(2);
 
 	// This is a position attribute pointer
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
 	// This is a color attribute pointer
-	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
 	// This is a uv attribute pointer
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
 
 	// Unbind and disable
 	glBindVertexArray(0);
@@ -154,16 +140,15 @@ void SpriteBatchRenderer::sortGlyphs()
 	switch (m_sortType)
 	{
 	case GlyphSortType::BACK_TO_FRONT:
-		std::stable_sort(m_glyphs.begin(), m_glyphs.end(), compareBackToFront);
+		std::stable_sort(m_glyphPointers.begin(), m_glyphPointers.end(), compareBackToFront);
 		break;
 	case GlyphSortType::FRONT_TO_BACK:
-		std::stable_sort(m_glyphs.begin(), m_glyphs.end(), compareFrontToBack);
+		std::stable_sort(m_glyphPointers.begin(), m_glyphPointers.end(), compareFrontToBack);
 		break;
 	case GlyphSortType::TEXTURE:
-		std::stable_sort(m_glyphs.begin(), m_glyphs.end(), compareTexture);
+		std::stable_sort(m_glyphPointers.begin(), m_glyphPointers.end(), compareTexture);
 		break;
-	}
-	
+	}	
 }
 
 bool SpriteBatchRenderer::compareFrontToBack(Glyph * a, Glyph * b)
@@ -178,5 +163,5 @@ bool SpriteBatchRenderer::compareBackToFront(Glyph * a, Glyph * b)
 
 bool SpriteBatchRenderer::compareTexture(Glyph * a, Glyph * b)
 {
-	return (a->TextureID < b->TextureID);//sort by texture ID
+	return (a->textureID < b->textureID);//sort by texture ID
 }

@@ -43,13 +43,17 @@ public:
 	void Update(GLfloat dt);
 	void Render(GLFWwindow* window);
 
-	void mousePressedAtPos(float x, float y);
+	void mousePressedLeftAtPos(float x, float y);
+	void mousePressedRightAtPos(float x, float y);
 private:
 	SpriteRenderer * Renderer;
+	SpriteBatchRenderer * m_batchRenderer;
 	GameWorld m_world;
 	Camera2D m_camera;
+	GameObject * m_player;
 
-	//SpriteBatchRenderer m_spriteBatch;
+	void InitShaders();
+	void InitTextures();
 };
 
 #endif

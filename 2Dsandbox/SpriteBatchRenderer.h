@@ -1,3 +1,5 @@
+#ifndef SPRITE_BATCH_RENDERER_H
+#define SPRITE_BATCH_RENDERER_H
 #define GLEW_STATIC
 #include <GL/glew.h>
 
@@ -14,16 +16,6 @@ enum class GlyphSortType
 	FRONT_TO_BACK,
 	BACK_TO_FRONT,
 	TEXTURE
-};
-
-struct Glyph {
-	GLuint TextureID;
-	float depth;
-
-	Vertex topLeft;
-	Vertex bottomLeft;
-	Vertex topRight;
-	Vertex bottomRight;
 };
 
 class RenderBatch
@@ -64,6 +56,8 @@ private:
 	GLuint m_VAO;
 
 	GlyphSortType m_sortType;
-	std::vector<Glyph*> m_glyphs;
+	std::vector<Glyph*> m_glyphPointers; // for sorting
+	std::vector<Glyph> m_glyphs;
 	std::vector<RenderBatch> m_renderBatches;
 };
+#endif
