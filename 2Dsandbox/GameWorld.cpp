@@ -4,6 +4,33 @@
 #include <sstream>
 #include <random>
 
+//-------------------------------------------------------------------------- //
+GameWorld* GameWorld::s_pInstance = NULL;
+//-------------------------------------------------------------------------- //
+
+GLboolean GameWorld::initialize()
+{
+	if (s_pInstance)
+		return GL_FALSE;
+
+	s_pInstance = new GameWorld();
+
+	if (!s_pInstance)
+		return GL_FALSE;
+
+	//s_pInstance->initializeInternal();
+	return GL_TRUE;
+}
+
+GameWorld::GameWorld()
+{
+}
+
+
+GameWorld::~GameWorld()
+{
+}
+
 void GameWorld::Load(const char * file, GLuint worldWidth, GLuint worldHeight)
 {
 	// Clear old map
@@ -18,11 +45,11 @@ void GameWorld::Load(const char * file, GLuint worldWidth, GLuint worldHeight)
 		{
 			std::istringstream sstream(line);
 			//std::vector<Block> row;
-			std::vector<ResourceManager::TileName> row;
+			std::vector<ResourceManager::TileType> row;
 			while (sstream >> tileCode)// Reading each tileID(block type) separated by spaces
 			{
 				//row.push_back(static_cast<Block>(tileCode));
-				row.push_back(static_cast<ResourceManager::TileName>(tileCode));
+				row.push_back(static_cast<ResourceManager::TileType>(tileCode));
 			}
 			m_worldMap.push_back(row);
 		}
@@ -55,7 +82,7 @@ void GameWorld::Generate(GLuint worldWidth, GLuint worldHeight)
 			if (x == 0 || x == worldWidth - 1 || y == 0 || y == worldHeight - 1)
 				m_worldMap[x][y] = ResourceManager::DIRT_TILE;//place tiles around the border
 			else if (deadOrAliveDistr(gen) < chanceToStartAlive)
-				m_worldMap[x][y] = (ResourceManager::TileName)tileDistr(gen);//random non empty tile
+				m_worldMap[x][y] = (ResourceManager::TileType)tileDistr(gen);//random non empty tile
 			else
 				m_worldMap[x][y] = ResourceManager::EMPTY_TILE;				
 		}
@@ -89,7 +116,7 @@ void GameWorld::GenerateHillsRandomWalk(int startHeight)
 
 void GameWorld::GenerateCavesCellularAutomata(GLuint iterations)
 {
-	std::vector<std::vector<ResourceManager::TileName>> newWorldMap;
+	std::vector<std::vector<ResourceManager::TileType>> newWorldMap;
 	newWorldMap.resize(m_worldWidthInTiles);
 	int birthLimit = 4;
 	int deathLimit = 3;
@@ -154,54 +181,10 @@ GLuint GameWorld::GetNeighboursCount(GLuint tileX, GLuint tileY)
 	return neighboursCount;
 }
 
-/*void GameWorld::DrawInBatches(const SpriteRenderer &renderer, Camera2D &cam)
+void GameWorld::DrawInBatches(SpriteBatchRenderer &renderer)
 {
 	//TODO: implement chunk based rendering -? do i need to tho?
-
-	// Code to precalculate visible tile bounds of world
-	int startCol = floor(cam.getPosition().x / m_tileWidth);
-	int endCol = startCol + (cam.getDimensions().x / m_tileWidth);
-	int startRow = floor(cam.getPosition().y / m_tileHeight);
-	int endRow = startRow + (cam.getDimensions().y / m_tileHeight);
-	
-	//Get camera offsets
-	float offsetX = -cam.getPosition().x + startCol * m_tileWidth;
-	float offsetY = -cam.getPosition().y + startRow * m_tileHeight;
-		
-	//Start batching sprites
-	m_spriteBatch.begin();
-
-	// Loop through visible part of map and add tiles to batch
-	for (int y = startRow; y <= endRow;  y++)
-	{
-		for (int x = startCol; x <= endCol; x++)
-		{	
-			// Get spritesheet for our tiles
-			// Get uv lookup table accordingly
-			static Texture2D tex = ResourceManager::GetSpritesheet(ResourceManager::TILES_SPRITESHEET);
-			ResourceManager::TexParams uvParams = ResourceManager::GetTexParams(ResourceManager::TILES_SPRITESHEET, m_worldMap[x][y]);
-						
-			float posX = (x - startCol) * m_tileWidth + offsetX;
-			float posY = (y - startRow) * m_tileHeight + offsetY;
-
-			glm::vec4 pos(posX, posY, m_tileWidth, m_tileHeight);
-			glm::vec4 uv(uvParams.u, uvParams.v, uvParams.width, uvParams.height);
-			Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
-
-			m_spriteBatch.draw(pos, uv, tex.ID, 0.0f, col);
-		}
-	}
-	// Once we added all tiles to batch start rendering
-	glm::mat4 model = glm::mat4(1.0);
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("model", model);
-
-	m_spriteBatch.end();
-	m_spriteBatch.renderBatch();
-}*/
-void GameWorld::DrawInBatches(SpriteBatchRenderer &renderer, Camera2D &cam)
-{
-	//TODO: implement chunk based rendering -? do i need to tho?
-
+	Camera2D &cam = Camera2D::instance();
 	// Code to precalculate visible tile bounds of world
 	int startCol = floor(cam.getPosition().x / m_tileWidth);
 	int endCol = startCol + (cam.getDimensions().x / m_tileWidth);
@@ -223,8 +206,8 @@ void GameWorld::DrawInBatches(SpriteBatchRenderer &renderer, Camera2D &cam)
 			static Texture2D tex = ResourceManager::GetSpritesheet(ResourceManager::TILES_SPRITESHEET);
 			ResourceManager::TexParams uvParams = ResourceManager::GetTexParams(ResourceManager::TILES_SPRITESHEET, m_worldMap[x][y]);
 
-			float posX = (x - startCol) * m_tileWidth + offsetX;
-			float posY = (y - startRow) * m_tileHeight + offsetY;
+			float posX = (x - startCol) * m_tileWidth +offsetX;
+			float posY = (y - startRow) * m_tileHeight +offsetY;
 
 			glm::vec4 pos(posX, posY, m_tileWidth, m_tileHeight);
 			glm::vec4 uv(uvParams.u, uvParams.v, uvParams.width, uvParams.height);
@@ -238,22 +221,71 @@ void GameWorld::DrawInBatches(SpriteBatchRenderer &renderer, Camera2D &cam)
 	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("model", model);
 }
 
-const ResourceManager::TileName GameWorld::getTileAtPos(GLfloat xPos, GLfloat yPos)
+const glm::vec2 GameWorld::getPositionOfTile(GLuint indexX, GLuint indexY)
+{	
+	Camera2D &cam = Camera2D::instance();
+	return glm::vec2(
+		(float)(indexX * m_tileWidth) + cam.getPosition().x,	
+		(float)(indexY * m_tileHeight) + cam.getPosition().y
+	);
+}
+
+const ResourceManager::TileType GameWorld::getTileTypeAtPos(GLfloat xPos, GLfloat yPos)
 {
-	// Assuming already accounted for camera position
-	GLuint xIndex = static_cast<GLuint>(xPos / m_tileWidth);
-	GLuint yIndex = static_cast<GLuint>(yPos / m_tileHeight);
+	Camera2D &cam = Camera2D::instance();
+	// Accounting for camera position
+	GLuint xIndex = static_cast<GLuint>((xPos + cam.getPosition().x) / m_tileWidth);
+	GLuint yIndex = static_cast<GLuint>((yPos + cam.getPosition().y) / m_tileHeight);
 	
 	// Make sure we click on map
 	if (xIndex < m_worldWidthInTiles && yIndex < m_worldHeightInTiles)
 		return m_worldMap[xIndex][yIndex];
 }
 
-void GameWorld::setTileAtPos(GLfloat xPos, GLfloat yPos, ResourceManager::TileName tileName)
+const ResourceManager::TileType GameWorld::getTileType(GLuint indexX, GLuint indexY)
+{	
+	//If indexs out of map bounds -> return as obstacle
+	if (indexX < 0 || indexX >= m_worldWidthInTiles
+		|| indexY < 0 || indexY >= m_worldHeightInTiles)
+		return ResourceManager::DIRT_TILE;// any non empty tile will work
+	return m_worldMap[indexX][indexY];
+}
+
+const GLboolean GameWorld::isSolidTile(GLuint indexX, GLuint indexY)
 {
-	// Assuming already accounted for camera position
-	GLuint xIndex = static_cast<GLuint>(xPos / m_tileWidth);
-	GLuint yIndex = static_cast<GLuint>((yPos)/ m_tileHeight);
+	//If indexs out of map bounds -> return as obstacle
+	if (indexX < 0 || indexX >= m_worldWidthInTiles
+		|| indexY < 0 || indexY >= m_worldHeightInTiles)
+		return true;
+	//for now all tiles apart from empty tile are obstacles-> maybe water and others will not be?
+	return (m_worldMap[indexX][indexY] != ResourceManager::EMPTY_TILE); 
+}
+
+const GLboolean GameWorld::isEmptyTile(GLuint indexX, GLuint indexY)
+{
+	//If indexs out of map bounds -> return as obstacle
+	if (indexX < 0 || indexX >= m_worldWidthInTiles
+		|| indexY < 0 || indexY >= m_worldHeightInTiles)
+		return false;
+	//for now all tiles apart from empty tile are obstacles-> maybe water and others will not be?
+	return (m_worldMap[indexX][indexY] == ResourceManager::EMPTY_TILE);
+}
+
+const glm::ivec2 GameWorld::getTileIndexAtPos(GLfloat xPos, GLfloat yPos)
+{
+	Camera2D &cam = Camera2D::instance();
+	return glm::ivec2(
+		static_cast<GLuint>((xPos)/ m_tileWidth),
+		static_cast<GLuint>((yPos)/ m_tileHeight)
+	);
+}
+
+void GameWorld::setTileAtPos(GLfloat xPos, GLfloat yPos, ResourceManager::TileType tileName)
+{
+	Camera2D &cam = Camera2D::instance();
+	// Accounting for camera position
+	GLuint xIndex = static_cast<GLuint>((xPos + cam.getPosition().x) / m_tileWidth);
+	GLuint yIndex = static_cast<GLuint>((yPos + cam.getPosition().y)/ m_tileHeight);
 
 	// Make sure we click on map
 	if(xIndex < m_worldWidthInTiles && yIndex < m_worldHeightInTiles)
@@ -268,9 +300,6 @@ void GameWorld::Init(GLuint worldWidth, GLuint worldHeight)
 	m_worldHeightInTiles = worldHeight; 
 	m_worldWidthInTiles = worldWidth;
 
-	m_offsetTilesHeight = m_worldHeightInTiles;
-	
-	//Here i want to generate VAOs for the world map
-	//m_spriteBatch.init();
+	m_offsetTilesHeight = m_worldHeightInTiles;	
 }
 

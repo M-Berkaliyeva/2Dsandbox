@@ -7,7 +7,9 @@
 
 #include "SpriteRenderer.h"
 #include "ResourceManager.h"
+#include "InputManager.h"
 #include "GameWorld.h"
+#include "Player.h"
 #include "Camera2D.h"
 
 /*******************************************************************
@@ -31,7 +33,6 @@ public:
 public:
 	// Game state
 	GameState	State;
-	GLboolean	Keys[1024];
 	GLuint		Width, Height;
 	// Constructor/Destructor
 	Game(GLuint width, GLuint height);
@@ -39,19 +40,18 @@ public:
 	// Initialize game state (load all shaders/textures/levels)
 	void Init();
 	// GameLoop
-	void ProcessInput(GLfloat dt);
 	void Update(GLfloat dt);
 	void Render(GLFWwindow* window);
 
-	void mousePressedLeftAtPos(float x, float y);
-	void mousePressedRightAtPos(float x, float y);
 private:
 	SpriteRenderer * Renderer;
 	SpriteBatchRenderer * m_batchRenderer;
-	GameWorld m_world;
-	Camera2D m_camera;
-	GameObject * m_player;
-
+	//GameWorld m_world;
+	//Camera2D m_camera;
+	Player m_player;
+	Texture2D	m_bgSprite;
+	GLfloat m_bgUVu;
+	GLfloat m_bgspeed;
 	void InitShaders();
 	void InitTextures();
 };

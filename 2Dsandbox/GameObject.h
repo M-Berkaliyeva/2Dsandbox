@@ -5,8 +5,9 @@
 #include <glm/glm.hpp>
 
 #include "texture.h"
-//#include "SpriteRenderer.h"
 #include "SpriteBatchRenderer.h"
+#include "GameWorld.h"
+#include "Camera2D.h"
 
 
 /*****************************************************************
@@ -23,8 +24,8 @@
 ***************************************************************/
 class GameObject
 {
-	static const float GRAVITY;
 public:
+	static const float GRAVITY;
 	enum ObjectType
 	{
 		OBJECT_TYPE_GENERIC = 0,
@@ -34,30 +35,52 @@ public:
 		OBJECT_TYPE_COUNT
 	};
 	GameObject();
-	GameObject(ObjectType objType,  glm::vec2 pos, glm::vec2 size, Texture2D sprite, GLboolean isCollidable = GL_TRUE, GLboolean isGravityApplied = GL_TRUE);
 
-	virtual void Update();
-	virtual void Draw(SpriteBatchRenderer &renderer);
-	virtual void OnCollision(GameObject* otherObject);
+	virtual void Update( GLfloat deltaTime );
+	virtual void Draw( SpriteBatchRenderer &renderer );
+	virtual void OnCollision( GameObject* otherObject );
+	virtual void OnLoad();
 
-	void Move(glm::vec2 speed);
-	bool Collides(glm::vec4 otherCollisionRect);
+	void Move( GLfloat deltaTime );
+	bool Collides( glm::vec4 otherCollisionRect );
+	//Check collision with ground
+	GLboolean HasGround(glm::vec2 oldPosition, glm::vec2 newPosition, glm::vec2 speed, float &groundY);
+	GLboolean HasCeiling(glm::vec2 oldPosition, glm::vec2 newPosition, float &ceilingY);
+	GLboolean HasWallOnLeft(glm::vec2 oldPosition, glm::vec2 newPosition, float &wallX);
+	GLboolean HasWallOnRight(glm::vec2 oldPosition, glm::vec2 newPosition, float &wallX);
 
-private:
+	glm::vec2 GetPosition() { return m_position; }
+	glm::vec2 GetSpeed() { return m_speed; }
+	GLboolean IsGrounded() { return m_isGrounded; }
+
+protected:
+	void CheckCollisionWithMap();
+	void RoundVector(glm::vec2 &vecToRound); 
+
 	ObjectType	m_objectType;
 	
 	// Object position and size
 	glm::vec2   m_position, m_size;
 	glm::vec2	m_speed, m_acceleration;
-
-	// Object collision rectangle
+	glm::vec2	m_prevPosition, m_prevSpeed;
+	// Object collision rectangle (AABB)
 	glm::vec4	m_collisionRect;
+
+	// Collision with tiles around
+	GLboolean	m_isGrounded;
+	GLboolean	m_wasGrounded;
+	GLboolean	m_isHittingCeiling;
+	GLboolean	m_wasHittingCeiling;
+	GLboolean	m_isHittingLeftWall;
+	GLboolean	m_wasHittingLeftWall;
+	GLboolean	m_isHittingRightWall;
+	GLboolean	m_wasHittingRightWall;
 
 	GLboolean	m_isGravityApplied;
 	GLboolean	m_isDrawable;
 	GLboolean   m_isCollidable;
 	// Render state
-	Texture2D   m_sprite;// maybe should be spritesheet?
+	Texture2D	m_sprite;// maybe should be spritesheet?
 };
 
 #endif

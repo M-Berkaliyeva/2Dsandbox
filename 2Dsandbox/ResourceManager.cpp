@@ -8,7 +8,7 @@
 
 // Instantiate static variables
 std::map<ResourceManager::SpritesheetName, Texture2D>					ResourceManager::Spritesheets;
-std::map<ResourceManager::TileName, ResourceManager::TexParams>			ResourceManager::TilesLookupTable;
+std::map<ResourceManager::TileType, ResourceManager::TexParams>			ResourceManager::TilesLookupTable;
 std::map<ResourceManager::ShaderName, Shader>							ResourceManager::Shaders;
 
 Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, ShaderName name)
@@ -49,7 +49,7 @@ void ResourceManager::LoadSpritesheetParams(const GLchar * file, SpritesheetName
 	return;
 }
 
-ResourceManager::TexParams ResourceManager::GetTexParams(SpritesheetName sName, TileName tName)
+ResourceManager::TexParams ResourceManager::GetTexParams(SpritesheetName sName, TileType tName)
 {
 	switch (sName)
 	{
@@ -166,7 +166,7 @@ void ResourceManager::loadTilesLookupTableFromFile(const GLchar * file)
 		currTileParam.width = atof(tileParam->Attribute("width")) / spWidth;// TEMP TO MAKE IT NORMALIZED
 		currTileParam.height = atof(tileParam->Attribute("height")) / spWidth;// TEMP TO MAKE IT NORMALIZED
 
-		TilesLookupTable[(TileName)i] = currTileParam;//right now just stores different params for same name!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+		TilesLookupTable[(TileType)i] = currTileParam;//right now just stores different params for same name!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 		// Now move on and read next subtexture 
 		tileParam = tileParam->NextSiblingElement("SubTexture");

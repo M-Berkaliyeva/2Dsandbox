@@ -25,10 +25,11 @@ public:
 	{
 		TILES_SPRITESHEET,
 		PLAYER_SPRITESHEET,
-		ITEMS_SPRITESHEET
+		ITEMS_SPRITESHEET,
+		BACKGROUND_SPRITESHEET
 	};
 
-	static enum TileName
+	static enum TileType
 	{//TODO: will probably need more than just these
 		EMPTY_TILE,
 		GRASS_TILE,
@@ -56,7 +57,7 @@ public:
 	// Resource storage
 	static std::map<ShaderName, Shader>    Shaders;
 	static std::map<SpritesheetName, Texture2D> Spritesheets;
-	static std::map<TileName, TexParams> TilesLookupTable;
+	static std::map<TileType, TexParams> TilesLookupTable;
 	// Loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
 	static Shader   LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, ShaderName name);
 	// Retrieves a stored shader
@@ -68,7 +69,7 @@ public:
 	// Loads a spritesheet params (texture name, x, y, width and height) from file
 	static void LoadSpritesheetParams(const GLchar *file, SpritesheetName name);
 	// Retrieves parameters of texture in spritesheet
-	static TexParams GetTexParams(SpritesheetName sName, TileName tName);
+	static TexParams GetTexParams(SpritesheetName sName, TileType tName);
 	// Properly de-allocates all loaded resources
 	static void      Clear();
 private:
