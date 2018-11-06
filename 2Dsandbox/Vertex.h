@@ -58,8 +58,8 @@ struct Vertex
 class Glyph {
 public:
 	Glyph() {};
-	Glyph(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, float depth, const Color & color) :
-		textureID(texture), depth(depth)
+	Glyph(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, GLuint shader, float depth, const Color & color) :
+		textureID(texture), shaderID(shader), depth(depth)
 	{
 		topLeft.color = color;
 		topLeft.setPosition(destRect.x, destRect.y + destRect.w);
@@ -79,6 +79,7 @@ public:
 
 	};
 	GLuint textureID;
+	GLuint shaderID;
 	float depth;
 
 	Vertex topLeft;

@@ -213,12 +213,9 @@ void GameWorld::DrawInBatches(SpriteBatchRenderer &renderer)
 			glm::vec4 uv(uvParams.u, uvParams.v, uvParams.width, uvParams.height);
 			Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
 
-			renderer.draw(pos, uv, tex.ID, 0.0f, col);
+			renderer.draw(pos, uv, tex.ID, ResourceManager::GetShader(ResourceManager::TILE_SHADER).ID, 0.0f, col);
 		}
-	}
-	// Once we added all tiles to batch start rendering
-	glm::mat4 model = glm::mat4(1.0);
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("model", model);
+	}	
 }
 
 const glm::vec2 GameWorld::getPositionOfTile(GLuint indexX, GLuint indexY)

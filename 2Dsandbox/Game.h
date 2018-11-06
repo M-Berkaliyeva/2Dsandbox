@@ -32,6 +32,7 @@ public:
 	};
 public:
 	// Game state
+	GLfloat GameTime;
 	GameState	State;
 	GLuint		Width, Height;
 	// Constructor/Destructor
@@ -44,16 +45,19 @@ public:
 	void Render(GLFWwindow* window);
 
 private:
+	void InitShaders();
+	void InitTextures();
+
 	SpriteRenderer * Renderer;
 	SpriteBatchRenderer * m_batchRenderer;
 	//GameWorld m_world;
 	//Camera2D m_camera;
 	Player m_player;
+
+	// MOve bg files to separate class -> willl be quite comlpex
 	Texture2D	m_bgSprite;
 	GLfloat m_bgUVu;
 	GLfloat m_bgspeed;
-	void InitShaders();
-	void InitTextures();
 };
 
 #endif

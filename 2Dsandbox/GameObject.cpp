@@ -126,7 +126,7 @@ void GameObject::Draw(SpriteBatchRenderer &renderer)
 	glm::vec4 pos(pos1.x, pos1.y, m_size.x, m_size.y);
 	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
 	Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
-	renderer.draw(pos, uv, m_sprite.ID, -1.0f, col);
+	renderer.draw(pos, uv, m_sprite.ID, ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).ID, -1.0f, col);
 }
 
 void GameObject::OnCollision(GameObject * otherObject)

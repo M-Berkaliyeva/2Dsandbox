@@ -15,17 +15,19 @@ enum class GlyphSortType
 	NONE,
 	FRONT_TO_BACK,
 	BACK_TO_FRONT,
-	TEXTURE
+	TEXTURE,
+	SHADER
 };
 
 class RenderBatch
 {
 public:
-	RenderBatch(GLuint offs, GLuint numV, GLuint tex) 
-		: offset(offs), numVertices(numV), texture(tex)	{}
+	RenderBatch(GLuint offs, GLuint numV, GLuint tex, GLuint shaderID) 
+		: offset(offs), numVertices(numV), texture(tex), shader(shaderID)	{}
 	GLuint offset;
 	GLuint numVertices;
 	GLuint texture;
+	GLuint shader;
 };
 
 class SpriteBatchRenderer
@@ -39,7 +41,7 @@ public:
 	void begin(GlyphSortType sortType = GlyphSortType::TEXTURE);
 	void end();
 
-	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, GLuint texture, float depth, const Color &color);
+	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, GLuint texture,  GLuint shader, float depth, const Color &color);
 
 	void renderBatch();
 	void createRenderBatches();
@@ -51,6 +53,7 @@ private:
 	static bool compareFrontToBack(Glyph* a, Glyph* b);
 	static bool compareBackToFront(Glyph* a, Glyph* b);
 	static bool compareTexture(Glyph* a, Glyph* b);
+	static bool compareShader(Glyph* a, Glyph* b);
 
 	GLuint m_VBO;
 	GLuint m_VAO;

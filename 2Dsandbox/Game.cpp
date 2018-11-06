@@ -40,6 +40,8 @@ void Game::Update(GLfloat dt)
 	m_player.Update(dt);
 	// Should i do this here?
 	Camera2D::instance().moveTo(m_player.GetPosition());
+	
+	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetFloat("time", glfwGetTime()/10, true);
 }
 
 void Game::Render(GLFWwindow* window)
@@ -63,7 +65,7 @@ void Game::Render(GLFWwindow* window)
 		glm::vec4 pos(0.0f, 0.0f, Width, Height);
 		glm::vec4 uv(0.0f + m_bgspeed, 0.0f, 1.0f, 1.0f);
 		Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
-		m_batchRenderer->draw(pos, uv, m_bgSprite.ID, 2.0f, col);
+		m_batchRenderer->draw(pos, uv, m_bgSprite.ID, ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).ID, 2.0f, col);
 		// Add world tiles to batch
 		GameWorld::instance().DrawInBatches(*m_batchRenderer);
 		// Add playerto batch
@@ -99,15 +101,25 @@ void Game::InitShaders()
 	Camera2D &camera = Camera2D::instance();
 	// Load shaders
 	ResourceManager::LoadShader("Shaders/TileShader.vs", "Shaders/TileShader.fs", nullptr, ResourceManager::TILE_SHADER);
-	ResourceManager::LoadShader("Shaders/GameObject.vs", "Shaders/GameObject.fs", nullptr, ResourceManager::GAMEOBJECT_SHADER);
+	ResourceManager::LoadShader("Shaders/GameObjectShader.vs", "Shaders/GameObjectShader.fs", nullptr, ResourceManager::GAMEOBJECT_SHADER);
+	ResourceManager::LoadShader("Shaders/BackgroundShader.vs", "Shaders/BackgroundShader.fs", nullptr, ResourceManager::BACKGROUND_SHADER);
 	// Configure shaders
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).Use().SetInteger("image", 0);
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).Use().SetMatrix4("projection", camera.getCameraMatrix());
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).Use().SetMatrix4("view", camera.getViewMatrix());
+	glm::mat4 model = glm::mat4(1.0);
+	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetInteger("image", 0, true);
+	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("projection", camera.getCameraMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("view", camera.getViewMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("model", model, true);
 
-	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).Use().SetInteger("image", 0);
-	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).Use().SetMatrix4("projection", camera.getCameraMatrix());
-	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).Use().SetMatrix4("view", camera.getViewMatrix());
+	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetInteger("image", 0, true);
+	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetMatrix4("projection", camera.getCameraMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetMatrix4("view", camera.getViewMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetMatrix4("model", model, true);
+
+	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetInteger("image", 0, true);
+	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetMatrix4("projection", camera.getCameraMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetMatrix4("view", camera.getViewMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetMatrix4("model", model, true);
+	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetFloat("time", 0.0f, true);
 
 }
 
