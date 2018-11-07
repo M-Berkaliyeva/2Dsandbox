@@ -1,5 +1,6 @@
 #include "SpriteBatchRenderer.h"
 
+#include <iostream>
 #include <algorithm>
 #include <cstddef>
 
@@ -52,7 +53,11 @@ void SpriteBatchRenderer::renderBatch()
 
 		glDrawArrays(GL_TRIANGLES, m_renderBatches[i].offset, m_renderBatches[i].numVertices);
 	}
-	glBindVertexArray(0);
+	glBindVertexArray(0); 
+	//unbind texture
+	glBindTexture(GL_TEXTURE_2D, 0);
+	std::cout << "Number of Draw Calls: " << m_renderBatches.size();
+	std::cout << "\n";
 }
 
 void SpriteBatchRenderer::createRenderBatches()

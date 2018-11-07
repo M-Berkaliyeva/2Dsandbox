@@ -19,13 +19,13 @@ void Game::Init()
 	Camera2D &camera = Camera2D::instance();
 	InitShaders();
 	InitTextures();
-	m_bgSprite = ResourceManager::GetSpritesheet(ResourceManager::BACKGROUND_SPRITESHEET);
+	m_bgSprite = ResourceManager::GetTileSheet(ResourceManager::BACKGROUND_TILESHEET);
 	m_bgUVu = 0.0f;
 	m_bgspeed = 1.0f;
 	// Load world
 	gameWorld.CreateMap(300, 150);
 	// Create player
-	m_player.OnLoad(glm::vec2(Width/2, 432.0f), ResourceManager::GetSpritesheet(ResourceManager::PLAYER_SPRITESHEET));
+	m_player.OnLoad(glm::vec2(Width/2, 432.0f));
 	// Setup camera
 	camera.setCameraLimits(gameWorld.m_worldWidthInPixels, gameWorld.m_worldHeightInPixels);//set camera move limits
 	// Set render-specific controls	
@@ -54,7 +54,7 @@ void Game::Render(GLFWwindow* window)
 		glClearColor( 0.73f, 0.86f, 0.99f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glActiveTexture(GL_TEXTURE0);
+		//glActiveTexture(GL_TEXTURE0);
 		
 		//Start batching sprites
 		m_batchRenderer->begin(GlyphSortType::BACK_TO_FRONT);
@@ -63,7 +63,7 @@ void Game::Render(GLFWwindow* window)
 		glm::vec4 pos(0.0f, 0.0f, Width, Height);
 		glm::vec4 uv(0.0f + m_bgspeed, 0.0f, 1.0f, 1.0f);
 		Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
-		m_batchRenderer->draw(pos, uv, m_bgSprite.ID, 2.0f, col);
+		m_batchRenderer->draw(pos, uv, m_bgSprite.texture.ID, 2.0f, col);
 		// Add world tiles to batch
 		GameWorld::instance().DrawInBatches(*m_batchRenderer);
 		// Add playerto batch
@@ -71,10 +71,6 @@ void Game::Render(GLFWwindow* window)
 		// Render batch
 		m_batchRenderer->end();
 		m_batchRenderer->renderBatch();
-
-		//unbind texture
-		glBindTexture(GL_TEXTURE_2D, 0);
-
 		glBindVertexArray(0);
 		/**************/
 		glfwSwapBuffers(window);
@@ -114,8 +110,8 @@ void Game::InitShaders()
 void Game::InitTextures()
 {
 	// Load spritesheet and spritesheet params (uv rects)
-	ResourceManager::LoadSpritesheet("textures/Player/p1_jump.png", GL_FALSE, ResourceManager::PLAYER_SPRITESHEET);
-	ResourceManager::LoadSpritesheet("textures/Tiles/tiles_spritesheet.png", GL_FALSE, ResourceManager::TILES_SPRITESHEET);
-	ResourceManager::LoadSpritesheet("textures/Backgrounds/background.png", GL_FALSE, ResourceManager::BACKGROUND_SPRITESHEET);
-	ResourceManager::LoadSpritesheetParams("textures/Tiles/tiles_spritesheet2.xml", ResourceManager::TILES_SPRITESHEET);
+	ResourceManager::LoadTileSheet("textures/Player/PlayerSpritesheet.png", GL_FALSE, ResourceManager::PLAYER_TILESHEET, glm::ivec2(16, 1));
+	ResourceManager::LoadTileSheet("textures/Tiles/tiles_spritesheet.png", GL_FALSE, ResourceManager::TILES_TILESHEET, glm::ivec2(70, 70));
+	ResourceManager::LoadTileSheet("textures/Backgrounds/background.png", GL_FALSE, ResourceManager::BACKGROUND_TILESHEET, glm::ivec2(3020, 1760));
+	ResourceManager::LoadSpritesheetParams("textures/Tiles/tiles_spritesheet2.xml", ResourceManager::TILES_TILESHEET);
 }

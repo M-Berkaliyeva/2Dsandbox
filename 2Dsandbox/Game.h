@@ -49,7 +49,7 @@ private:
 	//GameWorld m_world;
 	//Camera2D m_camera;
 	Player m_player;
-	Texture2D	m_bgSprite;
+	TileSheet	m_bgSprite;
 	GLfloat m_bgUVu;
 	GLfloat m_bgspeed;
 	void InitShaders();

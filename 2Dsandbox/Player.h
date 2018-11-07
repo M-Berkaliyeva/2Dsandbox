@@ -20,7 +20,7 @@ public:
 	Player();
 	~Player();
 
-	void OnLoad(glm::vec2 pos, Texture2D sprite);
+	void OnLoad(glm::vec2 pos);
 	void Update(GLfloat deltaTime);
 
 	void SetPlayerState(PlayerState newState) { m_playerCurrentState = newState; }

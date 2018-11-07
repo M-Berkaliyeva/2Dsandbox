@@ -17,9 +17,9 @@ void cursor_position_callback(GLFWwindow* window, int button, int action, int mo
 void displayFPS(GLfloat deltaTime);
 
 // The Width of the screen
-const GLuint SCREEN_WIDTH = 1600;
+const GLuint SCREEN_WIDTH = 1200;
 // The height of the screen
-const GLuint SCREEN_HEIGHT = 1200;
+const GLuint SCREEN_HEIGHT = 800;
 
 Game My2DSandbox(SCREEN_WIDTH, SCREEN_HEIGHT);
 

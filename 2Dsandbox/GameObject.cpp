@@ -10,6 +10,7 @@ GameObject::GameObject()
 	m_speed = glm::vec2(0.0f, 0.0f);
 	m_acceleration = glm::vec2(0.0f, 0.0f);
 	m_collisionRect = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	m_color.r = 255; m_color.g = 255; m_color.b = 255; m_color.a = 255;
 	m_isCollidable = false;
 	m_isGravityApplied = false;
 	m_isGrounded = false;
@@ -48,6 +49,7 @@ void GameObject::Update(GLfloat deltaTime)
 	CheckCollisionWithMap();
 
 	Move(deltaTime);
+	Animate(deltaTime);
 }
 
 /*****************************************************************************************************
@@ -68,7 +70,6 @@ void GameObject::CheckCollisionWithMap()
 			m_isHittingLeftWall = true;
 		}
 		m_speed.x = std::fmaxf(m_speed.x, 0.0f);
-		//m_speed.x = 0.0f;
 	}
 	else
 	{
@@ -85,7 +86,6 @@ void GameObject::CheckCollisionWithMap()
 			m_isHittingRightWall = true;
 		}
 		m_speed.x = std::fminf(m_speed.x, 0.0f);
-		//m_speed.x = 0.0f;
 	}
 	else
 	{
@@ -118,15 +118,32 @@ void GameObject::RoundVector(glm::vec2 & vecToRound)
 	vecToRound = glm::vec2(roundf(vecToRound.x), roundf(vecToRound.y));
 }
 
+void GameObject::Animate(GLfloat deltaTime)
+{
+	m_animationTime += m_animationSpeed;
+	m_currAnimationFrame = m_currAnimationFrame + (int)m_animationTime % m_animationFramesCount;
+}
+
+/*************************************************************
+* Adds player to spritebatch
+**************************************************************/
 void GameObject::Draw(SpriteBatchRenderer &renderer)
 {
+	// account for camera position
 	Camera2D &cam = Camera2D::instance();
 	glm::vec2 pos1(m_position.x - cam.getPosition().x, m_position.y - cam.getPosition().y);
 	RoundVector(pos1);
 	glm::vec4 pos(pos1.x, pos1.y, m_size.x, m_size.y);
-	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
-	Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
-	renderer.draw(pos, uv, m_sprite.ID, -1.0f, col);
+	//Get uv coordinates  given index
+	glm::vec4 uvs = m_tilesheet.getUVs(m_currAnimationFrame);
+	//calculate direction object facing
+	if (m_direction == -1)
+	{
+		uvs.x += 1.0f / m_tilesheet.dims.x;
+		uvs.z *= -1;
+	}
+
+	renderer.draw(pos, uvs, m_tilesheet.texture.ID, -1.0f, m_color);
 }
 
 void GameObject::OnCollision(GameObject * otherObject)
@@ -138,11 +155,11 @@ void GameObject::Move(GLfloat deltaTime)
 	GameWorld &map = GameWorld::instance();
 	glm::ivec2 newPos = m_position + m_speed * deltaTime;
 	// Don't move outside the world
-	if (newPos.x >= 0 && newPos.x < map.m_worldWidthInPixels)
+	if (newPos.x >= 0 && newPos.x < map.m_worldWidthInPixels - m_size.x)
 	{
 		m_position.x = newPos.x;
 	}
-	if (newPos.y >= 0 && newPos.y < map.m_worldHeightInPixels)
+	if (newPos.y >= 0 && newPos.y < map.m_worldHeightInPixels - m_size.y)
 	{
 		m_position.y = newPos.y;
 	}

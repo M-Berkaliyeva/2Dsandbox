@@ -7,8 +7,8 @@
 #include <SOIL.h>
 
 // Instantiate static variables
-std::map<ResourceManager::SpritesheetName, Texture2D>					ResourceManager::Spritesheets;
-std::map<ResourceManager::TileType, ResourceManager::TexParams>			ResourceManager::TilesLookupTable;
+std::map<ResourceManager::TileSheetName, TileSheet>						ResourceManager::TileSheets;
+std::map<ResourceManager::TileType, ResourceManager::TexCoords>			ResourceManager::TilesLookupTable;
 std::map<ResourceManager::ShaderName, Shader>							ResourceManager::Shaders;
 
 Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, ShaderName name)
@@ -22,23 +22,23 @@ Shader ResourceManager::GetShader(ShaderName name)
 	return Shaders[name];
 }
 
-Texture2D ResourceManager::LoadSpritesheet(const GLchar *file, GLboolean alpha, SpritesheetName name)
+TileSheet ResourceManager::LoadTileSheet(const GLchar *file, GLboolean alpha, TileSheetName name, glm::ivec2 tileSize)
 {
-	Spritesheets[name] = loadTextureFromFile(file, alpha);
-	return Spritesheets[name];
+	TileSheets[name] = loadTileSheetFromFile(file, alpha, tileSize);
+	return TileSheets[name];
 }
 
-Texture2D ResourceManager::GetSpritesheet(SpritesheetName name)
+TileSheet ResourceManager::GetTileSheet(TileSheetName name)
 {
-	return Spritesheets[name];
+	return TileSheets[name];
 }
 
-void ResourceManager::LoadSpritesheetParams(const GLchar * file, SpritesheetName name)
+void ResourceManager::LoadSpritesheetParams(const GLchar * file, TileSheetName name)
 {
 	// Depending on different spritesheets load and store texture params (for player and enemy spritesheets params will also include animation data)
 	switch (name)
 	{
-	case TILES_SPRITESHEET:
+	case TILES_TILESHEET:
 		loadTilesLookupTableFromFile(file);
 		break;
 	}
@@ -49,11 +49,11 @@ void ResourceManager::LoadSpritesheetParams(const GLchar * file, SpritesheetName
 	return;
 }
 
-ResourceManager::TexParams ResourceManager::GetTexParams(SpritesheetName sName, TileType tName)
+ResourceManager::TexCoords ResourceManager::GetTileTexCoords(TileSheetName sName, TileType tName)
 {
 	switch (sName)
 	{
-	case TILES_SPRITESHEET:
+	case TILES_TILESHEET:
 		return TilesLookupTable[tName];
 	}
 	//case PLAYER_SPRITESHEET:
@@ -68,8 +68,8 @@ void ResourceManager::Clear()
 	for (auto iter : Shaders)
 		glDeleteProgram(iter.second.ID);
 	// (Properly) delete all textures
-	for (auto iter : Spritesheets)
-		glDeleteTextures(1, &iter.second.ID);
+	for (auto iter : TileSheets)
+		glDeleteTextures(1, &iter.second.texture.ID);
 }
 
 Shader ResourceManager::loadShaderFromFile(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile)
@@ -116,7 +116,7 @@ Shader ResourceManager::loadShaderFromFile(const GLchar *vShaderFile, const GLch
 	return shader;
 }
 
-Texture2D ResourceManager::loadTextureFromFile(const GLchar *file, GLboolean alpha)
+TileSheet ResourceManager::loadTileSheetFromFile(const GLchar *file, GLboolean alpha, glm::ivec2 tileSize)
 {
 	// Create Texture object
 	Texture2D texture;
@@ -133,7 +133,12 @@ Texture2D ResourceManager::loadTextureFromFile(const GLchar *file, GLboolean alp
 	//texture.GenerateTextureArray(width, height, image);
 	// And finally free image data
 	SOIL_free_image_data(image);
-	return texture;
+
+	// Now create tilesheet with this texture
+	TileSheet tilesheet;
+	tilesheet.texture = texture;
+	tilesheet.dims = tileSize;
+	return tilesheet;
 }
 
 // Reading xml file and storing tile uvs in the map lookup table	
@@ -157,7 +162,7 @@ void ResourceManager::loadTilesLookupTableFromFile(const GLchar * file)
 	TiXmlElement *tileParam;
 	tileParam = texAtlas->FirstChildElement("SubTexture");
 	
-	TexParams currTileParam;	 
+	TexCoords currTileParam;	 
 	for (int i = 1; i < TILES_COUNT; i++)//while(tileParam)
 	{
 		// THIS IS TEMP HACKED WAY TO DO IT!!! THINK MORE!!!!

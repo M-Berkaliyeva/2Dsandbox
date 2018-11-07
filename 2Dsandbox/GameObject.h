@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "texture.h"
+#include "TileSheet.h"
 #include "SpriteBatchRenderer.h"
 #include "GameWorld.h"
 #include "Camera2D.h"
@@ -18,9 +18,6 @@
 	*Player
 	*NPC
 	*Every other non-tile object
-	I don't want to use this for tile since every game object 
-	will have attached sprite and therefore separate render call
-	->for world tiles will use smth called chunck-based rendering
 ***************************************************************/
 class GameObject
 {
@@ -56,6 +53,7 @@ public:
 protected:
 	void CheckCollisionWithMap();
 	void RoundVector(glm::vec2 &vecToRound); 
+	void Animate(GLfloat deltaTime);
 
 	ObjectType	m_objectType;
 	
@@ -80,7 +78,13 @@ protected:
 	GLboolean	m_isDrawable;
 	GLboolean   m_isCollidable;
 	// Render state
-	Texture2D	m_sprite;// maybe should be spritesheet?
+	int m_animationFramesCount = 1;
+	int m_currAnimationFrame = 0;
+	float m_animationSpeed;
+	float m_animationTime = 0;
+	int m_direction = 1;// 1 or -1
+	Color m_color;
+	TileSheet	m_tilesheet;
 };
 
 #endif
