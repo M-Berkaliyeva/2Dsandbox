@@ -1,6 +1,6 @@
 #include "SpriteBatchRenderer.h"
 
-#include <iostream>
+//#include <iostream>
 #include <algorithm>
 #include <cstddef>
 
@@ -39,9 +39,9 @@ void SpriteBatchRenderer::end()
 	createRenderBatches();
 }
 
-void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, float depth, const Color & color)
+void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, GLuint shader, float depth, const Color & color)
 {
-	m_glyphs.emplace_back(destRect, uvRect, texture, depth, color);
+	m_glyphs.emplace_back(destRect, uvRect, texture, shader,  depth, color);
 }
 
 void SpriteBatchRenderer::renderBatch()
@@ -49,6 +49,8 @@ void SpriteBatchRenderer::renderBatch()
 	glBindVertexArray(m_VAO);
 	for (int i = 0; i < m_renderBatches.size(); i++)
 	{
+		glUseProgram(m_renderBatches[i].shader);
+
 		glBindTexture(GL_TEXTURE_2D, m_renderBatches[i].texture);
 
 		glDrawArrays(GL_TRIANGLES, m_renderBatches[i].offset, m_renderBatches[i].numVertices);
@@ -56,8 +58,8 @@ void SpriteBatchRenderer::renderBatch()
 	glBindVertexArray(0); 
 	//unbind texture
 	glBindTexture(GL_TEXTURE_2D, 0);
-	std::cout << "Number of Draw Calls: " << m_renderBatches.size();
-	std::cout << "\n";
+	//std::cout << "Number of Draw Calls: " << m_renderBatches.size();
+	//std::cout << "\n";
 }
 
 void SpriteBatchRenderer::createRenderBatches()
@@ -71,7 +73,7 @@ void SpriteBatchRenderer::createRenderBatches()
 	}
 	int offset = 0;
 	int currVertex = 0;
-	m_renderBatches.emplace_back(offset, 6, m_glyphPointers[0]->textureID);
+	m_renderBatches.emplace_back(offset, 6, m_glyphPointers[0]->textureID, m_glyphPointers[0]->shaderID);
 	vertices[currVertex++] = m_glyphPointers[0]->topLeft;
 	vertices[currVertex++] = m_glyphPointers[0]->bottomLeft;
 	vertices[currVertex++] = m_glyphPointers[0]->bottomRight;
@@ -86,7 +88,7 @@ void SpriteBatchRenderer::createRenderBatches()
 		//only emplace render batch if curent texture is not the same as previous
 		if(m_glyphPointers[currGlyph]->textureID != m_glyphPointers[currGlyph - 1]->textureID)
 		{
-			m_renderBatches.emplace_back(offset, 6, m_glyphPointers[currGlyph]->textureID);
+			m_renderBatches.emplace_back(offset, 6, m_glyphPointers[currGlyph]->textureID, m_glyphPointers[currGlyph]->shaderID);
 		}
 		else//otherwise increase the size of current renderbatch
 		{
@@ -153,6 +155,9 @@ void SpriteBatchRenderer::sortGlyphs()
 	case GlyphSortType::TEXTURE:
 		std::stable_sort(m_glyphPointers.begin(), m_glyphPointers.end(), compareTexture);
 		break;
+	case GlyphSortType::SHADER:
+		std::stable_sort(m_glyphPointers.begin(), m_glyphPointers.end(), compareShader);
+		break;
 	}	
 }
 
@@ -169,4 +174,9 @@ bool SpriteBatchRenderer::compareBackToFront(Glyph * a, Glyph * b)
 bool SpriteBatchRenderer::compareTexture(Glyph * a, Glyph * b)
 {
 	return (a->textureID < b->textureID);//sort by texture ID
+}
+
+bool SpriteBatchRenderer::compareShader(Glyph * a, Glyph * b)
+{
+	return (a->shaderID < b->shaderID);//sort by shader ID
 }

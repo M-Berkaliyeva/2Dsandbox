@@ -45,6 +45,7 @@ public:
 	{
 		TILE_SHADER,
 		GAMEOBJECT_SHADER,
+		BACKGROUND_SHADER,
 		WATER_SHADER//i wish lol
 	};
 	static struct TexCoords

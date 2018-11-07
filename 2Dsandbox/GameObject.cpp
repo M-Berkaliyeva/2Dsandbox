@@ -134,6 +134,7 @@ void GameObject::Draw(SpriteBatchRenderer &renderer)
 	glm::vec2 pos1(m_position.x - cam.getPosition().x, m_position.y - cam.getPosition().y);
 	RoundVector(pos1);
 	glm::vec4 pos(pos1.x, pos1.y, m_size.x, m_size.y);
+
 	//Get uv coordinates  given index
 	glm::vec4 uvs = m_tilesheet.getUVs(m_currAnimationFrame);
 	//calculate direction object facing
@@ -143,7 +144,8 @@ void GameObject::Draw(SpriteBatchRenderer &renderer)
 		uvs.z *= -1;
 	}
 
-	renderer.draw(pos, uvs, m_tilesheet.texture.ID, -1.0f, m_color);
+	renderer.draw(pos, uvs, m_tilesheet.texture.ID, ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).ID, -1.0f, m_color);
+
 }
 
 void GameObject::OnCollision(GameObject * otherObject)
