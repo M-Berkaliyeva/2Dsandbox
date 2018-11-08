@@ -21,7 +21,7 @@ void Player::OnLoad(glm::vec2 pos)
 	m_speed = glm::vec2(0.0f, 0.0f);
 	m_acceleration = glm::vec2(0.0f, 0.0f);
 	m_collisionRect = glm::vec4(m_size.x / 4, 0.0f, m_size.x / 2, m_size.y);
-	m_tilesheet = ResourceManager::GetTileSheet(ResourceManager::PLAYER_TILESHEET);
+	m_tilesheet = ResourceManager::GetTexture(ResourceManager::PLAYER_TILESHEET);
 	m_isCollidable = true;
 	m_isGravityApplied = true;
 	m_isGrounded = false;

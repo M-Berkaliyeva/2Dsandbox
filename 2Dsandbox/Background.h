@@ -3,7 +3,9 @@
 
 #define GLEW_STATIC
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
+#include "ResourceManager.h"
 #include "SpriteBatchRenderer.h"
 #include "Texture.h"
 
@@ -14,17 +16,44 @@ each with different speed
 
 class Background
 {
+public: 
+	enum LayerName
+	{
+		SKY_LAYER = 0,
+		//STARS_LAYER,
+		//SUN_MOON_LAYER,
+		MOUNTAINS_LAYER,
+		HILLS_LAYER,
+		//TREES_LAYER,
+		CLOUDS_LAYER,
+		OVERLAY_LAYER
+	};
+
+	struct Layer
+	{
+		GLint texID;
+		GLuint shaderID;
+		GLfloat depth;
+	};
+
 public:
 	static const int NUMBER_OF_LAYERS = 5;
-	static const float LAYERS_SPEEDS[NUMBER_OF_LAYERS];
+	static const GLfloat LAYERS_SPEEDS[NUMBER_OF_LAYERS];
 
-	void Update(GLfloat deltaTime);
+	Background();
+	~Background();
+
+	void Update(GLfloat deltaTime, GLfloat gameTime);
 	void Draw(SpriteBatchRenderer &renderer);
-	void OnLoad();
+	void OnLoad(GLfloat width, GLfloat height);
 
 private:
 	void Animate(GLfloat deltaTime);
 
-	Texture2D	m_layerTextures[NUMBER_OF_LAYERS]; // holds all parallax layers
+	Layer	m_layers[NUMBER_OF_LAYERS]; // holds all layers
+
+	GLfloat m_layerUVu[NUMBER_OF_LAYERS]; // holds u parameter of layer UV
+	GLfloat m_bgWidth;
+	GLfloat m_bgHeight;
 };
 #endif //BACKGROUND_H

@@ -19,9 +19,7 @@ void Game::Init()
 	Camera2D &camera = Camera2D::instance();
 	InitShaders();
 	InitTextures();
-	m_bgSprite = ResourceManager::GetTileSheet(ResourceManager::BACKGROUND_TILESHEET);
-	m_bgUVu = 0.0f;
-	m_bgspeed = 1.0f;
+	m_background.OnLoad(Width, Height);
 	// Load world
 	gameWorld.CreateMap(300, 150);
 	// Create player
@@ -35,42 +33,33 @@ void Game::Init()
 
 void Game::Update(GLfloat dt)
 {
+	m_gameTime = glfwGetTime() / 10;
 	InputManager::instance().Update(dt);
-
+	m_background.Update(dt, m_gameTime);
 	m_player.Update(dt);
 	// Should i do this here?
 	Camera2D::instance().moveTo(m_player.GetPosition());
-	
-	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetFloat("time", glfwGetTime()/10, true);
 }
 
 void Game::Render(GLFWwindow* window)
-{
-	m_bgspeed += 0.001;
-	if (m_bgspeed > 1.0f)
-		m_bgspeed = 0.0f;
+{	
 	if (this->State == GAME_ACTIVE)
 	{	
 		//Set Base depth to 1
 		glClearDepth(1.0f);
 		glClearColor( 0.73f, 0.86f, 0.99f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		//glActiveTexture(GL_TEXTURE0);
-		
+				
 		//Start batching sprites
 		m_batchRenderer->begin(GlyphSortType::BACK_TO_FRONT);
-		// Add background to btch
-
-		glm::vec4 pos(0.0f, 0.0f, Width, Height);
-		glm::vec4 uv(0.0f + m_bgspeed, 0.0f, 1.0f, 1.0f);
-		Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
-		m_batchRenderer->draw(pos, uv, m_bgSprite.texture.ID, ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).ID, 2.0f, col);
-
+		
+		//Add Background layers to batch
+		m_background.Draw(*m_batchRenderer);
 		// Add world tiles to batch
 		GameWorld::instance().DrawInBatches(*m_batchRenderer);
 		// Add playerto batch
 		m_player.Draw(*m_batchRenderer);
+
 		// Render batch
 		m_batchRenderer->end();
 		m_batchRenderer->renderBatch();
@@ -97,34 +86,36 @@ void Game::InitShaders()
 {
 	Camera2D &camera = Camera2D::instance();
 	// Load shaders
-	ResourceManager::LoadShader("Shaders/TileShader.vs", "Shaders/TileShader.fs", nullptr, ResourceManager::TILE_SHADER);
-	ResourceManager::LoadShader("Shaders/GameObjectShader.vs", "Shaders/GameObjectShader.fs", nullptr, ResourceManager::GAMEOBJECT_SHADER);
-	ResourceManager::LoadShader("Shaders/BackgroundShader.vs", "Shaders/BackgroundShader.fs", nullptr, ResourceManager::BACKGROUND_SHADER);
+	ResourceManager::LoadShader("Shaders/TexturedSpriteShader.vs", "Shaders/TexturedSpriteShader.fs", nullptr, ResourceManager::TEXTURED_SPRITE_SHADER);
+	ResourceManager::LoadShader("Shaders/SkyBackgroundShader.vs", "Shaders/SkyBackgroundShader.fs", nullptr, ResourceManager::SKY_BACKGROUND_SHADER);
+	ResourceManager::LoadShader("Shaders/OverlayBackgroundShader.vs", "Shaders/OverlayBackgroundShader.fs", nullptr, ResourceManager::OVERLAY_BACKGROUND_SHADER);
 	// Configure shaders
 	glm::mat4 model = glm::mat4(1.0);
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetInteger("image", 0, true);
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("projection", camera.getCameraMatrix(), true);
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("view", camera.getViewMatrix(), true);
-	ResourceManager::GetShader(ResourceManager::TILE_SHADER).SetMatrix4("model", model, true);
+	ResourceManager::GetShader(ResourceManager::TEXTURED_SPRITE_SHADER)->SetInteger("image", 0, true);
+	ResourceManager::GetShader(ResourceManager::TEXTURED_SPRITE_SHADER)->SetMatrix4("projection", camera.getCameraMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::TEXTURED_SPRITE_SHADER)->SetMatrix4("view", camera.getViewMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::TEXTURED_SPRITE_SHADER)->SetMatrix4("model", model, true);
 
-	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetInteger("image", 0, true);
-	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetMatrix4("projection", camera.getCameraMatrix(), true);
-	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetMatrix4("view", camera.getViewMatrix(), true);
-	ResourceManager::GetShader(ResourceManager::GAMEOBJECT_SHADER).SetMatrix4("model", model, true);
+	//ResourceManager::GetShader(ResourceManager::SKY_BACKGROUND_SHADER)->SetInteger("image", 0, true);
+	ResourceManager::GetShader(ResourceManager::SKY_BACKGROUND_SHADER)->SetMatrix4("projection", camera.getCameraMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::SKY_BACKGROUND_SHADER)->SetMatrix4("view", camera.getViewMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::SKY_BACKGROUND_SHADER)->SetMatrix4("model", model, true);
+	ResourceManager::GetShader(ResourceManager::SKY_BACKGROUND_SHADER)->SetFloat("time", 0.0f, true);
 
-	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetInteger("image", 0, true);
-	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetMatrix4("projection", camera.getCameraMatrix(), true);
-	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetMatrix4("view", camera.getViewMatrix(), true);
-	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetMatrix4("model", model, true);
-	ResourceManager::GetShader(ResourceManager::BACKGROUND_SHADER).SetFloat("time", 0.0f, true);
+	ResourceManager::GetShader(ResourceManager::OVERLAY_BACKGROUND_SHADER)->SetMatrix4("projection", camera.getCameraMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::OVERLAY_BACKGROUND_SHADER)->SetMatrix4("view", camera.getViewMatrix(), true);
+	ResourceManager::GetShader(ResourceManager::OVERLAY_BACKGROUND_SHADER)->SetMatrix4("model", model, true);
+	ResourceManager::GetShader(ResourceManager::OVERLAY_BACKGROUND_SHADER)->SetFloat("time", 0.0f, true);
 
 }
 
 void Game::InitTextures()
 {
 	// Load spritesheet and spritesheet params (uv rects)
-	ResourceManager::LoadTileSheet("textures/Player/PlayerSpritesheet.png", GL_FALSE, ResourceManager::PLAYER_TILESHEET, glm::ivec2(16, 1));
-	ResourceManager::LoadTileSheet("textures/Tiles/tiles_spritesheet.png", GL_FALSE, ResourceManager::TILES_TILESHEET, glm::ivec2(70, 70));
-	ResourceManager::LoadTileSheet("textures/Backgrounds/background.png", GL_FALSE, ResourceManager::BACKGROUND_TILESHEET, glm::ivec2(3020, 1760));
+	ResourceManager::LoadTextures("textures/Player/PlayerSpritesheet.png", GL_FALSE, ResourceManager::PLAYER_TILESHEET, glm::ivec2(16, 1));
+	ResourceManager::LoadTextures("textures/Tiles/tiles_spritesheet.png", GL_FALSE, ResourceManager::TILES_TILESHEET, glm::ivec2(70, 70));
+	ResourceManager::LoadTextures("textures/Backgrounds/clouds_BG.png", GL_FALSE, ResourceManager::CLOUDS_BG_BACKGROUND_TEXTURE, glm::ivec2(1, 1));
+	ResourceManager::LoadTextures("textures/Backgrounds/mountains.png", GL_FALSE, ResourceManager::MOUNTAINS_BACKGROUND_TEXTURE, glm::ivec2(1, 1));
+	ResourceManager::LoadTextures("textures/Backgrounds/clouds_FG.png", GL_FALSE, ResourceManager::CLOUDS_FG_BACKGROUND_TEXTURE, glm::ivec2(1, 1));
 	ResourceManager::LoadSpritesheetParams("textures/Tiles/tiles_spritesheet2.xml", ResourceManager::TILES_TILESHEET);
 }

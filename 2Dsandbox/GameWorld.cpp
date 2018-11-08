@@ -203,8 +203,7 @@ void GameWorld::DrawInBatches(SpriteBatchRenderer &renderer)
 		{
 			// Get spritesheet for our tiles
 			// Get uv lookup table accordingly
-			static TileSheet tilesheet = ResourceManager::GetTileSheet(ResourceManager::TILES_TILESHEET);
-			ResourceManager::TexCoords uvParams = ResourceManager::GetTileTexCoords(ResourceManager::TILES_TILESHEET, m_worldMap[x][y]);
+			ResourceManager::TexCoords uvParams = ResourceManager::GetTileUVCoords(ResourceManager::TILES_TILESHEET, m_worldMap[x][y]);
 
 			float posX = (x - startCol) * m_tileWidth +offsetX;
 			float posY = (y - startRow) * m_tileHeight +offsetY;
@@ -213,7 +212,7 @@ void GameWorld::DrawInBatches(SpriteBatchRenderer &renderer)
 			glm::vec4 uv(uvParams.u, uvParams.v, uvParams.width, uvParams.height);
 			Color col; col.r = 255; col.g = 255; col.b = 255; col.a = 255;
 
-			renderer.draw(pos, uv, tilesheet.texture.ID, ResourceManager::GetShader(ResourceManager::TILE_SHADER).ID, 0.0f, col);
+			renderer.draw(pos, uv, col, ResourceManager::GetShader(ResourceManager::TEXTURED_SPRITE_SHADER)->ID, ResourceManager::GetTexture(ResourceManager::TILES_TILESHEET)->texture.ID, 0.0f);
 		}
 	}	
 }

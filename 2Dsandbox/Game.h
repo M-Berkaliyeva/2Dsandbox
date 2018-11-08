@@ -11,6 +11,7 @@
 #include "GameWorld.h"
 #include "Player.h"
 #include "Camera2D.h"
+#include "Background.h"
 
 /*******************************************************************
 	Game class holds all game related states and functionality,
@@ -32,7 +33,6 @@ public:
 	};
 public:
 	// Game state
-	GLfloat GameTime;
 	GameState	State;
 	GLuint		Width, Height;
 	// Constructor/Destructor
@@ -53,9 +53,9 @@ private:
 	//GameWorld m_world;
 	//Camera2D m_camera;
 	Player m_player;
-	TileSheet	m_bgSprite;
-	GLfloat m_bgUVu;
-	GLfloat m_bgspeed;
+	Background m_background;
+
+	GLfloat m_gameTime;
 };
 
 #endif

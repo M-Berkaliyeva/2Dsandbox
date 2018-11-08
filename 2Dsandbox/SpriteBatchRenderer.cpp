@@ -39,7 +39,7 @@ void SpriteBatchRenderer::end()
 	createRenderBatches();
 }
 
-void SpriteBatchRenderer::draw(const glm::vec4 & destRect, const glm::vec4 & uvRect, GLuint texture, GLuint shader, float depth, const Color & color)
+void SpriteBatchRenderer::draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, const Color &color, GLuint shader, GLint texture, GLfloat depth)
 {
 	m_glyphs.emplace_back(destRect, uvRect, texture, shader,  depth, color);
 }
@@ -51,7 +51,10 @@ void SpriteBatchRenderer::renderBatch()
 	{
 		glUseProgram(m_renderBatches[i].shader);
 
-		glBindTexture(GL_TEXTURE_2D, m_renderBatches[i].texture);
+		// Only bind texture if it exists (for some objects i want to draw with shader only, e.g. gradient sky)
+		// If -1 -> no texture!
+		if(m_renderBatches[i].texture != -1)
+			glBindTexture(GL_TEXTURE_2D, m_renderBatches[i].texture);		
 
 		glDrawArrays(GL_TRIANGLES, m_renderBatches[i].offset, m_renderBatches[i].numVertices);
 	}

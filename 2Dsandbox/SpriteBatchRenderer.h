@@ -22,7 +22,7 @@ enum class GlyphSortType
 class RenderBatch
 {
 public:
-	RenderBatch(GLuint offs, GLuint numV, GLuint tex, GLuint shaderID) 
+	RenderBatch(GLuint offs, GLuint numV, GLint tex, GLuint shaderID) 
 		: offset(offs), numVertices(numV), texture(tex), shader(shaderID)	{}
 	GLuint offset;
 	GLuint numVertices;
@@ -41,7 +41,7 @@ public:
 	void begin(GlyphSortType sortType = GlyphSortType::TEXTURE);
 	void end();
 
-	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, GLuint texture,  GLuint shader, float depth, const Color &color);
+	void draw(const glm::vec4 &destRect, const glm::vec4 &uvRect, const Color &color, GLuint shader, GLint texture = -1, GLfloat depth = 0);
 
 	void renderBatch();
 	void createRenderBatches();

@@ -10,12 +10,11 @@ vec3 dayColorBot = vec3(0.494,0.683,0.636);
 vec3 nightColorTop = vec3(0.051,0.067,0.082);
 vec3 nightColorBot = vec3(0.302,0.408,0.471);
 
-uniform sampler2D image;
 uniform float time;
 
 void main()
 {
-	float pct = abs(sin(time));
+	float pct = abs(1 - cos(time));
    
    // Calculate gradients
 	vec3 dayColGradient = dayColorTop * (1 - fragmentUV.y) + dayColorBot * fragmentUV.y;

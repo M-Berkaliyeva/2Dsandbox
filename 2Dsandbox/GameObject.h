@@ -84,7 +84,7 @@ protected:
 	float m_animationTime = 0;
 	int m_direction = 1;// 1 or -1
 	Color m_color;
-	TileSheet	m_tilesheet;
+	TileSheet* m_tilesheet;
 };
 
 #endif
